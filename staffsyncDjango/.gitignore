@@ -1,0 +1,20 @@
+# Ignore IDE-related files
+.idea/
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore SQLite database (if you're using MySQL)
+db.sqlite3
+
+# Ignore Python bytecode files
+__pycache__/
+
+# Ignore virtual environment
+venv/
+
+# Ignore migrations if they are not necessary
+staffsyncApp/migrations/
+
+# Ignore database dump (if any)
+*.sql
