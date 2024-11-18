@@ -57,7 +57,9 @@ ROOT_URLCONF = 'staffsyncDjango.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+        BASE_DIR / 'staffsyncApp/templates'
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

@@ -2,4 +2,4 @@ from django.shortcuts import render
 
 # Create your views here.
 def login_view(request):
-    return render(request, 'staffsyncApp/login.html')
+    return render(request, 'login.html')
