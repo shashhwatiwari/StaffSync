@@ -28,6 +28,9 @@ class Department(models.Model):
         managed = False
         db_table = 'Department'
 
+    def __str__(self):
+        return self.departmentname
+
 
 class Dependentinfo(models.Model):
     dependentinfoid = models.AutoField(db_column='DependentInfoID', primary_key=True)  # Field name made lowercase.
@@ -71,6 +74,9 @@ class Employee(models.Model):
         managed = False
         db_table = 'Employee'
 
+    def __str__(self):
+        return self.employeename
+
 
 class Employeeemergencycontact(models.Model):
     emergencycontactid = models.OneToOneField(Emergencycontact, models.DO_NOTHING, db_column='EmergencyContactID', primary_key=True)  # Field name made lowercase. The composite primary key (EmergencyContactID, EmployeeID) found, that is not supported. The first column is selected.
@@ -89,6 +95,9 @@ class Jobtitle(models.Model):
     class Meta:
         managed = False
         db_table = 'JobTitle'
+
+    def __str__(self):
+        return self.jobtitlename
 
 
 class LeaveTracker(models.Model):
@@ -119,6 +128,9 @@ class Organization(models.Model):
         managed = False
         db_table = 'Organization'
 
+    def __str__(self):
+        return self.name
+
 
 class Paygrade(models.Model):
     paygradeid = models.AutoField(db_column='PayGradeID', primary_key=True)  # Field name made lowercase.
@@ -145,6 +157,8 @@ class Useraccount(models.Model):
         managed = False
         db_table = 'UserAccount'
 
+    def __str__(self):
+        return self.username
 
 class AuthGroup(models.Model):
     name = models.CharField(unique=True, max_length=150)

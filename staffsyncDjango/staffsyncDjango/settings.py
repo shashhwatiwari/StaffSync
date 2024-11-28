@@ -11,8 +11,13 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import environ
 import pymysql
 pymysql.install_as_MySQLdb()
+
+# Initialize environment variables
+env = environ.Env()
+environ.Env.read_env()  # Automatically looks for a .env file in the project root
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -78,27 +83,27 @@ WSGI_APPLICATION = 'staffsyncDjango.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': env('DB_NAME'),  # Database name from the .env file
+        'USER': env('DB_USER', default='root'),  # MySQL username (use 'root' as default if not set)
+        'PASSWORD': env('DB_PASSWORD'),  # Password from the .env file
+        'HOST': env('DB_HOST', default='127.0.0.1'),  # MySQL host (use localhost by default)
+        'PORT': env('DB_PORT', default=3306),  # MySQL port (default is 3306)
+    }
+}
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
 #         'NAME': 'StaffSync',
 #         'USER': 'root',
-#         'PASSWORD': 'khuloveru0716',
+#         'PASSWORD': 'Rshashank118@02',
 #         'HOST': '127.0.0.1',
 #         'PORT': '3306',
 #     }
-# }
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'StaffSync',
-        'USER': 'root',
-        'PASSWORD': 'Rshashank118@02',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
-    }
-}
+#}
 
 
 
