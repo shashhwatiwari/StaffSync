@@ -79,21 +79,6 @@ def view_dependents(request):
 
 
 # Method to add new dependents
-# def add_dependent(request):
-#     if request.method == 'POST':
-#         employee_id = request.session['user_id']
-#         dependent_name = request.POST['dependent_name']
-#         dependent_age = int(request.POST['dependent_age'])
-#         out_param = OutParam()
-#
-#         try:
-#             result = call_procedure('insert_dependent', [employee_id, dependent_name, dependent_age, out_param])
-#             messages.success(request, f'Dependent added successfully.')
-#             return redirect('employee-dependent')
-#         except Exception as e:
-#             messages.error(request, str(e))
-#
-#     return render(request, 'add_dependent.html')
 def add_dependent(request):
     if request.method == 'POST':
         employee_id = request.session.get('user_id')
