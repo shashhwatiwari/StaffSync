@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Home - StaffSync</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1, h2 {
+            text-align: center;
+            margin: 20px 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 90%;
+            max-width: 1000px;
+            margin: 20px 0;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            text-align: center;
+            padding: 10px;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        td {
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome HR</h1>
+    <h2>Employee List</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Date of Birth</th>
+                <th>Department ID</th>
+                <th>Job Title ID</th>
+                <th>Pay Grade ID</th>
+                <th>Supervisor ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for employee in employees %}
+            <tr>
+                <td>{{ employee.EmployeeID }}</td>
+                <td>{{ employee.EmployeeName }}</td>
+                <td>{{ employee.DateOfBirth }}</td>
+                <td>{{ employee.DepartmentID }}</td>
+                <td>{{ employee.JobTitleID }}</td>
+                <td>{{ employee.PayGradeID }}</td>
+                <td>{{ employee.SupervisorID }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Home - StaffSync</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #4CAF50;
+            margin: 20px 0;
+        }
+        .info-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 600px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .info-container h2 {
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+        .info-container p {
+            margin: 10px 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .info-container p span {
+            font-weight: bold;
+            color: #333;
+        }
+        .info-container .btn-container {
+            margin-top: 15px;
+        }
+        .info-container .btn-container button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        .info-container .btn-container button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome, {{ employee.EmployeeName }}</h1>
+    <div class="info-container">
+        <h2>Personal Details</h2>
+        <p><span>Address:</span> {{ employee.Address }}</p>
+        <p><span>Country:</span> {{ employee.Country }}</p>
+        <p><span>Date of Birth:</span> {{ employee.DateOfBirth }}</p>
+        <p><span>Gender:</span> {{ employee.Gender }}</p>
+        <p><span>Marital Status:</span> {{ employee.MaritalStatus }}</p>
+    </div>
+    <div class="info-container">
+        <h2>Job Information</h2>
+        <p><span>Job Title:</span> {{ employee.JobTitleName }}</p>
+        <p><span>Department:</span> {{ employee.DepartmentName }}</p>
+    </div>
+    <div class="info-container">
+        <h2>Statistics</h2>
+        <p><span>Dependents:</span> {{ employee.DependentCount }}</p>
+        <div class="btn-container">
+            <button onclick="window.location.href='/dependents'">View/Update Dependents</button>
+        </div>
+        <p><span>Emergency Contacts:</span> {{ employee.EmergencyContactCount }}</p>
+        <div class="btn-container">
+            <button onclick="window.location.href='/emergencycontact'">View/Update Emergency Contacts</button>
+        </div>
+        <p><span>Total Leaves Used:</span> {{ employee.TotalLeavesUsed }}</p>
+        <div class="btn-container">
+            <button onclick="window.location.href='/apply-for-leave'">Apply for Leave</button>
+        </div>
+    </div>
+</body>
+</html>

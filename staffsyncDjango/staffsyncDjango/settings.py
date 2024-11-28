@@ -33,13 +33,13 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'staffsyncApp.apps.StaffsyncAppConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'staffsyncApp'
 ]
 
 MIDDLEWARE = [
@@ -78,16 +78,29 @@ WSGI_APPLICATION = 'staffsyncDjango.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'StaffSync',
+#         'USER': 'root',
+#         'PASSWORD': 'khuloveru0716',
+#         'HOST': '127.0.0.1',
+#         'PORT': '3306',
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'StaffSync',
         'USER': 'root',
-        'PASSWORD': 'khuloveru0716',
+        'PASSWORD': 'Rshashank118@02',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
 }
+
+
 
 
 # Password validation

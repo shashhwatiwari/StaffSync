@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Dependents - StaffSync</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #4CAF50;
+            margin: 20px 0;
+        }
+        .info-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 600px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .info-container h2 {
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+        .info-container table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .info-container table th, .info-container table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .info-container table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .info-container table td {
+            background-color: #f9f9f9;
+        }
+        .btn-container {
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Your Dependents</h1>
+    <div class="info-container">
+        <h2>Dependents List</h2>
+        {% if dependents %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Age</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dependent in dependents %}
+                <tr>
+                    <td>{{ dependent.DependentName }}</td>
+                    <td>{{ dependent.DependentAge }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No dependents found.</p>
+        {% endif %}
+        <div class="btn-container">
+            <button onclick="window.location.href='/update-dependents'">Update Dependents</button>
+            <button onclick="window.location.href='{% url 'employee-add-dependent' %}'">Add Dependents</button>
+        </div>
+    </div>
+</body>
+</html>
+
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>View Dependents - StaffSync</title>-->
+<!--    <style>-->
+<!--        body {-->
+<!--            font-family: Arial, sans-serif;-->
+<!--            margin: 0;-->
+<!--            padding: 0;-->
+<!--            background-color: #f9f9f9;-->
+<!--            color: #333;-->
+<!--            display: flex;-->
+<!--            flex-direction: column;-->
+<!--            align-items: center;-->
+<!--        }-->
+<!--        h1 {-->
+<!--            color: #4CAF50;-->
+<!--            margin: 20px 0;-->
+<!--        }-->
+<!--        .info-container {-->
+<!--            background-color: #fff;-->
+<!--            border-radius: 8px;-->
+<!--            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);-->
+<!--            width: 90%;-->
+<!--            max-width: 600px;-->
+<!--            padding: 20px;-->
+<!--            margin-bottom: 20px;-->
+<!--        }-->
+<!--        .info-container h2 {-->
+<!--            color: #4CAF50;-->
+<!--            margin-bottom: 15px;-->
+<!--        }-->
+<!--        .info-container table {-->
+<!--            width: 100%;-->
+<!--            border-collapse: collapse;-->
+<!--        }-->
+<!--        .info-container table th, .info-container table td {-->
+<!--            border: 1px solid #ddd;-->
+<!--            padding: 10px;-->
+<!--            text-align: left;-->
+<!--        }-->
+<!--        .info-container table th {-->
+<!--            background-color: #4CAF50;-->
+<!--            color: white;-->
+<!--        }-->
+<!--        .info-container table td {-->
+<!--            background-color: #f9f9f9;-->
+<!--        }-->
+<!--        .btn-container {-->
+<!--            display: flex;-->
+<!--            justify-content: flex-start;-->
+<!--            gap: 10px;-->
+<!--            margin-top: 20px;-->
+<!--        }-->
+<!--        button {-->
+<!--            background-color: #4CAF50;-->
+<!--            color: white;-->
+<!--            border: none;-->
+<!--            padding: 10px 15px;-->
+<!--            border-radius: 5px;-->
+<!--            cursor: pointer;-->
+<!--            font-size: 14px;-->
+<!--        }-->
+<!--        button:hover {-->
+<!--            background-color: #45a049;-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--    <h1>Your Dependents</h1>-->
+<!--    <div class="info-container">-->
+<!--        <h2>Dependents List</h2>-->
+<!--        {% if dependents %}-->
+<!--        <table>-->
+<!--            <thead>-->
+<!--                <tr>-->
+<!--                    <th>Name</th>-->
+<!--                    <th>Age</th>-->
+<!--                </tr>-->
+<!--            </thead>-->
+<!--            <tbody>-->
+<!--                {% for dependent in dependents %}-->
+<!--                <tr>-->
+<!--                    <td>{{ dependent.DependentName }}</td>-->
+<!--                    <td>{{ dependent.DependentAge }}</td>-->
+<!--                </tr>-->
+<!--                {% endfor %}-->
+<!--            </tbody>-->
+<!--        </table>-->
+<!--        {% else %}-->
+<!--        <p>No dependents found.</p>-->
+<!--        {% endif %}-->
+<!--        <div class="btn-container">-->
+<!--            <button onclick="window.location.href='{% url 'employee-add-dependent' %}'">Add Dependents</button>-->
+<!--            <button onclick="window.location.href='{% url 'employee-dependent' %}'">Update Dependents</button>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</body>-->
+<!--</html>-->
+
