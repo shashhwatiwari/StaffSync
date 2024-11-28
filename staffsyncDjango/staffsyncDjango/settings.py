@@ -89,6 +89,18 @@ WSGI_APPLICATION = 'staffsyncDjango.wsgi.application'
 #     }
 # }
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'StaffSync',
+        'USER': 'root',
+        'PASSWORD': 'Rshashank118@02',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+    }
+}
+
+
 
 
 # Password validation

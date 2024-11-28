@@ -63,3 +63,26 @@ def employee_home(request):
 
     return render(request, 'employee-home.html',
                   {'employee': employee_data[0] if employee_data else None})
+
+
+
+
+# Method to view employee dependents
+def view_dependents(request):
+    if 'user_id' not in request.session:
+        return redirect('login')
+
+    user_id = request.session['user_id']
+    dependents = call_procedure('get_employee_dependents', [user_id])
+    return render(request, 'view_dependents.html', {'dependents': dependents})
+
+
+
+# Method to view employee emergency contacts
+def view_emergency_contacts(request):
+    if 'user_id' not in request.session:
+        return redirect('login')
+
+    user_id = request.session['user_id']
+    contacts = call_procedure('get_employee_emergency_contacts', [user_id])
+    return render(request, 'view_emergency_contacts.html', {'contacts': contacts})
