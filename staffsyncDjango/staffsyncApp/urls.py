@@ -8,5 +8,4 @@ urlpatterns = [
     path('dependents/', views.view_dependents, name='employee-dependent'),
     path('emergencycontact/', views.view_emergency_contacts, name='employee-emergencycontact'),
     path('add-dependent/', views.add_dependent, name='employee-add-dependent'),
-    # path('add-dependent/', views.add_dependent, name='employee-add-dependent'),
 ]
