@@ -25,3 +25,9 @@ def call_procedure(procedure_name, params=None):
             columns = [col[0] for col in cursor.description]
             return [dict(zip(columns, row)) for row in cursor.fetchall()]
         return cursor.rowcount
+
+
+# For procedures that have an out parameter, for example the add_dependent procedure returning the new Dependent ID
+class OutParam:
+    def __init__(self):
+        self.value = None

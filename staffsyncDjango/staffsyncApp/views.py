@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
-from .db_utils import execute_query, call_procedure
+from .db_utils import execute_query, call_procedure, OutParam
+from django.contrib import messages
 
 
 # login method
@@ -75,6 +76,54 @@ def view_dependents(request):
     user_id = request.session['user_id']
     dependents = call_procedure('get_employee_dependents', [user_id])
     return render(request, 'view_dependents.html', {'dependents': dependents})
+
+
+# Method to add new dependents
+# def add_dependent(request):
+#     if request.method == 'POST':
+#         employee_id = request.session['user_id']
+#         dependent_name = request.POST['dependent_name']
+#         dependent_age = int(request.POST['dependent_age'])
+#         out_param = OutParam()
+#
+#         try:
+#             result = call_procedure('insert_dependent', [employee_id, dependent_name, dependent_age, out_param])
+#             messages.success(request, f'Dependent added successfully.')
+#             return redirect('employee-dependent')
+#         except Exception as e:
+#             messages.error(request, str(e))
+#
+#     return render(request, 'add_dependent.html')
+def add_dependent(request):
+    if request.method == 'POST':
+        employee_id = request.session.get('user_id')
+        if not employee_id:
+            messages.error(request, 'User not authenticated.')
+            return redirect('login')
+
+        dependent_name = request.POST.get('dependent_name')
+        dependent_age = request.POST.get('dependent_age')
+
+        if not dependent_name or not dependent_age:
+            messages.error(request, 'Please provide both name and age for the dependent.')
+            return render(request, 'add_dependent.html')
+
+        try:
+            dependent_age = int(dependent_age)
+        except ValueError:
+            messages.error(request, 'Age must be a valid number.')
+            return render(request, 'add_dependent.html')
+
+        out_param = OutParam()
+
+        try:
+            call_procedure('insert_dependent', [employee_id, dependent_name, dependent_age, out_param])
+            messages.success(request, f'Dependent added successfully. ID: {out_param.value}')
+            return redirect('employee-dependent')
+        except Exception as e:
+            messages.error(request, f'Error adding dependent: {str(e)}')
+
+    return render(request, 'add_dependent.html')
 
 
 
