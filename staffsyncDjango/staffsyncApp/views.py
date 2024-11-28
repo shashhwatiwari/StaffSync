@@ -75,6 +75,7 @@ def view_dependents(request):
 
     user_id = request.session['user_id']
     dependents = call_procedure('get_employee_dependents', [user_id])
+    print("Dependents:", dependents)
     return render(request, 'view_dependents.html', {'dependents': dependents})
 
 
@@ -103,13 +104,66 @@ def add_dependent(request):
 
         try:
             call_procedure('insert_dependent', [employee_id, dependent_name, dependent_age, out_param])
-            messages.success(request, f'Dependent added successfully. ID: {out_param.value}')
+            print(f"Debug: New dependent ID: {out_param.value}")
+            #messages.success(request, f'Dependent added successfully. ID: {out_param.value}')
             return redirect('employee-dependent')
         except Exception as e:
             messages.error(request, f'Error adding dependent: {str(e)}')
 
     return render(request, 'add_dependent.html')
 
+
+#Method to update a dependent
+# def update_dependent(request, dependent_id):
+#     if request.method == 'POST':
+#         dependent_name = request.POST.get('dependent_name')
+#         dependent_age = request.POST.get('dependent_age')
+#
+#         try:
+#             call_procedure('update_dependent', [dependent_id, dependent_name, dependent_age])
+#             messages.success(request, 'Dependent updated successfully.')
+#             return redirect('view_dependents')
+#         except Exception as e:
+#             messages.error(request, f'Error updating dependent: {str(e)}')
+#
+#     # Fetch current dependent info for pre-filling the form
+#     dependent = call_procedure('get_employee_dependents', [dependent_id])[0]
+#     return render(request, 'update_dependent.html', {'dependent': dependent})
+
+def update_dependent(request, dependent_id):
+    if request.method == 'POST':
+        dependent_name = request.POST.get('dependent_name')
+        dependent_age = request.POST.get('dependent_age')
+
+        try:
+            call_procedure('update_dependent', [dependent_id, dependent_name, dependent_age])
+            #messages.success(request, 'Dependent updated successfully.')
+            return redirect('view_dependents')
+        except Exception as e:
+            messages.error(request, f'Error updating dependent: {str(e)}')
+
+    # Fetch current dependent info for pre-filling the form
+    dependents = call_procedure('get_employee_dependents', [dependent_id])
+
+    if not dependents:
+        # If no dependent is found, redirect to the dependents list with an error message
+        messages.error(request, 'Dependent not found.')
+        return redirect('employee-dependent')
+
+    dependent = dependents[0]
+    return render(request, 'update_dependent.html', {'dependent': dependent})
+
+
+
+#Method to delete a dependent
+def delete_dependent(request, dependent_id):
+    if request.method == 'POST':
+        try:
+            call_procedure('delete_dependent', [dependent_id])
+            messages.success(request, 'Dependent deleted successfully.')
+        except Exception as e:
+            messages.error(request, f'Error deleting dependent: {str(e)}')
+    return redirect('employee-dependent')
 
 
 # Method to view employee emergency contacts
