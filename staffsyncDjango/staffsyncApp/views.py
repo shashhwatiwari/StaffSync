@@ -174,3 +174,13 @@ def view_emergency_contacts(request):
     user_id = request.session['user_id']
     contacts = call_procedure('get_employee_emergency_contacts', [user_id])
     return render(request, 'view_emergency_contacts.html', {'contacts': contacts})
+
+
+#method to view the audit logs:
+def admin_home(request):
+    if 'user_id' not in request.session:
+        return redirect('login')
+    query = "SELECT * FROM AuditLog ORDER BY Timestamp DESC"  # You can add filtering or sorting as needed
+    auditlogs = execute_query(query)  # Assuming `execute_query` returns a list of rows
+
+    return render(request, 'admin-home.html', {'auditlogs': auditlogs})

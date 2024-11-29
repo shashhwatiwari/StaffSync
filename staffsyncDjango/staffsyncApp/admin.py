@@ -22,7 +22,11 @@ class EmployeeAdmin(admin.ModelAdmin):
     # Pagination for large sets of records
     list_per_page = 20
 admin.site.register(Employee, EmployeeAdmin)
-admin.site.register(Dependentinfo)
+class DependentinfoAdmin(admin.ModelAdmin):
+    list_display = ('dependentinfoid','employeeid','dependentname','dependentage')
+    search_fields = ('dependentname','dependentinfoid')
+    list_per_page = 20
+admin.site.register(Dependentinfo,DependentinfoAdmin)
 admin.site.register(Emergencycontact)
 admin.site.register(Employeeemergencycontact)
 admin.site.register(Jobtitle)
@@ -30,3 +34,4 @@ admin.site.register(LeaveTracker)
 admin.site.register(Organization)
 admin.site.register(Paygrade)
 admin.site.register(Useraccount)
+admin.site.register(Auditlog)

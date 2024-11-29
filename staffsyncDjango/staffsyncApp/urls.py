@@ -10,5 +10,6 @@ urlpatterns = [
     path('add-dependent/', views.add_dependent, name='employee-add-dependent'),
     path('update-dependent/<int:dependent_id>/', views.update_dependent, name='employee-update-dependent'),
     path('delete-dependent/<int:dependent_id>/', views.delete_dependent, name='employee-delete-dependent'),
+    path('admin_home/', views.admin_home, name='admin-home'),
 
 ]
