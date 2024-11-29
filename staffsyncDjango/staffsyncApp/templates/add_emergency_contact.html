@@ -1,0 +1,186 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Add Emergency Contact - StaffSync</title>-->
+<!--    <style>-->
+<!--        body {-->
+<!--            font-family: Arial, sans-serif;-->
+<!--            margin: 0;-->
+<!--            padding: 0;-->
+<!--            background-color: #f9f9f9;-->
+<!--            color: #333;-->
+<!--            display: flex;-->
+<!--            flex-direction: column;-->
+<!--            align-items: center;-->
+<!--        }-->
+<!--        h1 {-->
+<!--            color: #4CAF50;-->
+<!--            margin: 20px 0;-->
+<!--        }-->
+<!--        .form-container {-->
+<!--            background-color: #fff;-->
+<!--            border-radius: 8px;-->
+<!--            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);-->
+<!--            width: 90%;-->
+<!--            max-width: 400px;-->
+<!--            padding: 20px;-->
+<!--            margin-top: 20px;-->
+<!--        }-->
+<!--        .form-container form {-->
+<!--            display: flex;-->
+<!--            flex-direction: column;-->
+<!--        }-->
+<!--        .form-container label {-->
+<!--            margin-bottom: 5px;-->
+<!--            font-weight: bold;-->
+<!--        }-->
+<!--        .form-container input {-->
+<!--            margin-bottom: 15px;-->
+<!--            padding: 10px;-->
+<!--            font-size: 14px;-->
+<!--            border: 1px solid #ddd;-->
+<!--            border-radius: 5px;-->
+<!--        }-->
+<!--        .form-container button {-->
+<!--            background-color: #4CAF50;-->
+<!--            color: white;-->
+<!--            border: none;-->
+<!--            padding: 10px 15px;-->
+<!--            border-radius: 5px;-->
+<!--            cursor: pointer;-->
+<!--            font-size: 14px;-->
+<!--        }-->
+<!--        .form-container button:hover {-->
+<!--            background-color: #45a049;-->
+<!--        }-->
+<!--        .error-message, .success-message {-->
+<!--            text-align: center;-->
+<!--            font-size: 14px;-->
+<!--            margin-top: 10px;-->
+<!--            color: #d9534f; /* Error: Red */-->
+<!--        }-->
+<!--        .success-message {-->
+<!--            color: #5cb85c; /* Success: Green */-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--    <h1>Add Emergency Contact</h1>-->
+<!--    <div class="form-container">-->
+<!--        {% if messages %}-->
+<!--        {% for message in messages %}-->
+<!--        <div class="{{ message.tags }}">{{ message }}</div>-->
+<!--        {% endfor %}-->
+<!--        {% endif %}-->
+<!--        <form method="POST" action="{% url 'add-emergency-contact' %}">-->
+<!--            {% csrf_token %}-->
+<!--            <label for="contact_name">Contact Name:</label>-->
+<!--            <input type="text" id="contact_name" name="contact_name" placeholder="Enter contact's name" required>-->
+
+<!--            <label for="contact_phone">Contact Phone:</label>-->
+<!--            <input type="tel" id="contact_phone" name="contact_phone" placeholder="Enter contact's phone number" required pattern="[0-9]{10}">-->
+
+<!--            <label for="relationship">Relationship:</label>-->
+<!--            <input type="text" id="relationship" name="relationship" placeholder="Enter relationship" required>-->
+
+<!--            <button type="submit">Add Emergency Contact</button>-->
+<!--        </form>-->
+<!--    </div>-->
+<!--</body>-->
+<!--</html>-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Emergency Contact - StaffSync</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #4CAF50;
+            margin: 20px 0;
+        }
+        .form-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .form-container form {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-container label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-container input, .form-container textarea {
+            margin-bottom: 15px;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .form-container button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .form-container button:hover {
+            background-color: #45a049;
+        }
+        .error-message, .success-message {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 10px;
+            color: #d9534f; /* Error: Red */
+        }
+        .success-message {
+            color: #5cb85c; /* Success: Green */
+        }
+    </style>
+</head>
+<body>
+    <h1>Add Emergency Contact</h1>
+    <div class="form-container">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        <form method="POST" action="{% url 'add-emergency-contact' %}">
+            {% csrf_token %}
+            <label for="contact_name">Contact Name:</label>
+            <input type="text" id="contact_name" name="contact_name" placeholder="Enter contact's name" required>
+
+            <label for="phone_number">Phone Number:</label>
+            <input type="tel" id="phone_number" name="phone_number" placeholder="Enter contact's phone number" required pattern="[0-9]{10}">
+
+            <label for="address">Address:</label>
+            <textarea id="address" name="address" placeholder="Enter contact's address" required rows="3"></textarea>
+
+            <button type="submit">Add Emergency Contact</button>
+        </form>
+    </div>
+</body>
+</html>
+

@@ -27,8 +27,7 @@ class DependentinfoAdmin(admin.ModelAdmin):
     search_fields = ('dependentname','dependentinfoid')
     list_per_page = 20
 admin.site.register(Dependentinfo,DependentinfoAdmin)
-admin.site.register(Emergencycontact)
-admin.site.register(Employeeemergencycontact)
+admin.site.register(EmergencyContact)
 admin.site.register(Jobtitle)
 admin.site.register(LeaveTracker)
 admin.site.register(Organization)

@@ -59,13 +59,19 @@ def employee_home(request):
 
     user_id = request.session['user_id']
 
-    # Fetch employee's own data
-    employee_data = call_procedure('GetEmployeeDetails', [user_id]) # procedure call to SQL database
+    try:
+        # Fetch employee's own data
+        employee_data = call_procedure('GetEmployeeDetails', [user_id])
+        if employee_data:
+            employee = employee_data[0]
+        else:
+            messages.error(request, "No employee data found.")
+            return redirect('login')
+    except Exception as e:
+        messages.error(request, f"Error fetching employee data: {str(e)}")
+        return redirect('login')
 
-    return render(request, 'employee-home.html',
-                  {'employee': employee_data[0] if employee_data else None})
-
-
+    return render(request, 'employee-home.html', {'employee': employee})
 
 
 
@@ -126,7 +132,7 @@ def update_dependent(request, dependent_id):
 
         try:
             call_procedure('update_dependent', [dependent_id, dependent_name, dependent_age])
-            messages.success(request, 'Dependent updated successfully.')
+            #messages.success(request, 'Dependent updated successfully.')
         except Exception as e:
             messages.error(request, f'Error updating dependent: {str(e)}')
 
@@ -164,6 +170,63 @@ def view_emergency_contacts(request):
     contacts = call_procedure('get_employee_emergency_contacts', [user_id])
     return render(request, 'view_emergency_contacts.html', {'contacts': contacts})
 
+
+#Method to add an employees emergency contact
+def add_emergency_contact(request):
+    if request.method == 'POST':
+        employee_id = request.session.get('user_id')
+        contact_name = request.POST.get('contact_name')
+        phone_number = request.POST.get('phone_number')
+        address = request.POST.get('address')
+
+        out_param = OutParam()
+        try:
+            call_procedure('insert_emergency_contact',
+                           [employee_id, contact_name, phone_number, address, out_param])
+            #messages.success(request, 'Emergency contact added successfully.')
+        except Exception as e:
+            messages.error(request, f'Error adding emergency contact: {str(e)}')
+        # this line
+        return redirect('employee-emergencycontact')
+
+    return render(request, 'add_emergency_contact.html')
+
+
+#Method to update an emergency contact
+def update_emergency_contact(request, contact_id):
+    if request.method == 'POST':
+        contact_name = request.POST.get('contact_name')
+        phone_number = request.POST.get('phone_number')
+        address = request.POST.get('address')
+
+        try:
+            call_procedure('update_emergency_contact',
+                           [contact_id, contact_name, phone_number, address])
+            #messages.success(request, 'Emergency contact updated successfully.')
+        except Exception as e:
+            messages.error(request, f'Error updating emergency contact: {str(e)}')
+
+        return redirect('employee-emergencycontact')
+
+    # For GET requests, you might want to fetch the current contact info and render a form
+    contact = call_procedure('get_employee_emergency_contacts', [request.session.get('user_id')])
+    contact = next((c for c in contact if c['EmergencyContactID'] == contact_id), None)
+    return render(request, 'update_emergency_contact.html', {'contact': contact})
+
+
+#Method to delete emergency contact for an employee
+def delete_emergency_contact(request, contact_id):
+    if request.method == 'POST':
+        try:
+            call_procedure('delete_emergency_contact', [contact_id])
+            #messages.success(request, 'Emergency contact deleted successfully.')
+        except Exception as e:
+            messages.error(request, f'Error deleting emergency contact: {str(e)}')
+
+    return redirect('employee-emergencycontact')
+
+
+# -------------------------------------------------------------------------------------------------------------------------------------------------
 
 #method to view the audit logs:
 def admin_home(request):
