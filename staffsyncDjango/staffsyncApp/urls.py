@@ -14,5 +14,9 @@ urlpatterns = [
     path('add-emergency-contact/', views.add_emergency_contact, name='add-emergency-contact'),
     path('update-emergency-contact/<int:contact_id>/', views.update_emergency_contact, name='update-emergency-contact'),
     path('delete-emergency-contact/<int:contact_id>/', views.delete_emergency_contact, name='delete-emergency-contact'),
+    path('apply-for-leave/', views.log_leave, name='apply-for-leave'),
+    path('view-leave/', views.view_employee_leaves, name='view-leave'),
+
+
 
 ]

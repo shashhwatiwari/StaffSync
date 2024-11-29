@@ -239,3 +239,43 @@ def delete_emergency_contact(request, contact_id):
 
 # -------------------------------------------------------------------------------------------------------------------------------------------------
 
+#Method to log a leave
+
+def log_leave(request):
+    if request.method == 'POST':
+        employee_id = request.session.get('user_id')
+        reason = request.POST.get('reason')
+        leave_type = request.POST.get('leave_type')
+        first_absent_date = request.POST.get('first_absent_date')
+        last_absent_date = request.POST.get('last_absent_date')
+        out_param = OutParam()
+        try:
+            call_procedure('LogLeave', [
+                employee_id,
+                reason,
+                leave_type,
+                first_absent_date,
+                last_absent_date,
+                out_param
+            ])
+            #messages.success(request, f'Leave request submitted successfully. Leave ID: {leave_id}')
+            return redirect('employee-home')
+        except Exception as e:
+            messages.error(request, f'Error submitting leave request: {str(e)}')
+    return render(request, 'log_leave.html')
+
+
+
+#Method to view leaves logged by an employee.
+def view_employee_leaves(request):
+    if 'user_id' not in request.session:
+        return redirect('login')
+
+    employee_id = request.session['user_id']
+
+    try:
+        leaves = call_procedure('get_employee_leaves', [employee_id])
+        return render(request, 'view_leaves.html', {'leaves': leaves})
+    except Exception as e:
+        messages.error(request, f'Error retrieving leave data: {str(e)}')
+        return redirect('employee_dashboard')

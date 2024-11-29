@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Leaves - StaffSync</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #4CAF50;
+            margin: 20px 0;
+        }
+
+        .table-container {
+            width: 90%;
+            max-width: 1200px;
+            margin-top: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        table th, table td {
+            text-align: left;
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .back-button {
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Leave History</h1>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Leave ID</th>
+                    <th>Logged On</th>
+                    <th>Reason</th>
+                    <th>Type</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Day Count</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if leaves %}
+                    {% for leave in leaves %}
+                        <tr>
+                            <td>{{ leave.LeaveID }}</td>
+                            <td>{{ leave.LeaveLogDateTime }}</td>
+                            <td>{{ leave.Reason }}</td>
+                            <td>{{ leave.LeaveType }}</td>
+                            <td>{{ leave.FirstAbsentDate }}</td>
+                            <td>{{ leave.LastAbsentDate }}</td>
+                            <td>{{ leave.LeaveDayCount }}</td>
+                            <td>{{ leave.ApprovalStatus }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center;">No leave records found.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <button class="back-button" onclick="window.location.href='/employee'">Back to Dashboard</button>
+</body>
+</html>
