@@ -68,6 +68,11 @@ def employee_home(request):
 
 
 
+
+
+# -------------------------------------------------------------------------------------------------------------------------------------------------
+# CRUD Methods for Employee Dependents
+
 # Method to view employee dependents
 def view_dependents(request):
     if 'user_id' not in request.session:
@@ -114,44 +119,21 @@ def add_dependent(request):
 
 
 #Method to update a dependent
-# def update_dependent(request, dependent_id):
-#     if request.method == 'POST':
-#         dependent_name = request.POST.get('dependent_name')
-#         dependent_age = request.POST.get('dependent_age')
-#
-#         try:
-#             call_procedure('update_dependent', [dependent_id, dependent_name, dependent_age])
-#             messages.success(request, 'Dependent updated successfully.')
-#             return redirect('view_dependents')
-#         except Exception as e:
-#             messages.error(request, f'Error updating dependent: {str(e)}')
-#
-#     # Fetch current dependent info for pre-filling the form
-#     dependent = call_procedure('get_employee_dependents', [dependent_id])[0]
-#     return render(request, 'update_dependent.html', {'dependent': dependent})
-
 def update_dependent(request, dependent_id):
     if request.method == 'POST':
-        dependent_name = request.POST.get('dependent_name')
-        dependent_age = request.POST.get('dependent_age')
+        dependent_name = request.POST.get('dependentName')
+        dependent_age = request.POST.get('dependentAge')
 
         try:
             call_procedure('update_dependent', [dependent_id, dependent_name, dependent_age])
-            #messages.success(request, 'Dependent updated successfully.')
-            return redirect('view_dependents')
+            messages.success(request, 'Dependent updated successfully.')
         except Exception as e:
             messages.error(request, f'Error updating dependent: {str(e)}')
 
-    # Fetch current dependent info for pre-filling the form
-    dependents = call_procedure('get_employee_dependents', [dependent_id])
-
-    if not dependents:
-        # If no dependent is found, redirect to the dependents list with an error message
-        messages.error(request, 'Dependent not found.')
         return redirect('employee-dependent')
 
-    dependent = dependents[0]
-    return render(request, 'update_dependent.html', {'dependent': dependent})
+    # If it's a GET request, you might want to return an error or redirect
+    return redirect('employee-dependent')
 
 
 
@@ -160,11 +142,18 @@ def delete_dependent(request, dependent_id):
     if request.method == 'POST':
         try:
             call_procedure('delete_dependent', [dependent_id])
-            messages.success(request, 'Dependent deleted successfully.')
+            #messages.success(request, 'Dependent deleted successfully.')
         except Exception as e:
             messages.error(request, f'Error deleting dependent: {str(e)}')
     return redirect('employee-dependent')
 
+
+
+
+
+
+# -------------------------------------------------------------------------------------------------------------------------------------------------
+# CRUD Methods for Emergency Contacts
 
 # Method to view employee emergency contacts
 def view_emergency_contacts(request):
