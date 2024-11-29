@@ -36,7 +36,7 @@ def login_view(request):
 
 
 
-# method for HR page
+#Method for HR page
 def hr_home(request):
     if request.session.get('user_role') != 'HR':
         return redirect('login')
@@ -72,6 +72,17 @@ def employee_home(request):
         return redirect('login')
 
     return render(request, 'employee-home.html', {'employee': employee})
+
+
+
+#Method to view the audit logs:
+def admin_home(request):
+    if 'user_id' not in request.session:
+        return redirect('login')
+    query = "SELECT * FROM AuditLog ORDER BY Timestamp DESC"  # You can add filtering or sorting as needed
+    auditlogs = execute_query(query)  # Assuming `execute_query` returns a list of rows
+
+    return render(request, 'admin-home.html', {'auditlogs': auditlogs})
 
 
 
@@ -228,11 +239,3 @@ def delete_emergency_contact(request, contact_id):
 
 # -------------------------------------------------------------------------------------------------------------------------------------------------
 
-#method to view the audit logs:
-def admin_home(request):
-    if 'user_id' not in request.session:
-        return redirect('login')
-    query = "SELECT * FROM AuditLog ORDER BY Timestamp DESC"  # You can add filtering or sorting as needed
-    auditlogs = execute_query(query)  # Assuming `execute_query` returns a list of rows
-
-    return render(request, 'admin-home.html', {'auditlogs': auditlogs})
