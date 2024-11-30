@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from .db_utils import execute_query, call_procedure, OutParam
 from django.contrib import messages
 
+from .models import Employee
+
 
 # login method
 def login_view(request):
@@ -438,11 +440,18 @@ def edit_employee(request, employee_id):
 
     return render(request, 'edit_employee.html', {'employee': employee})
 
-# def delete_employee(request, employee_id):
-#     if request.method == 'POST':
-#         try:
-#             call_procedure('delete_dependent', [employee_id])
-#             # messages.success(request, 'Dependent deleted successfully.')
-#         except Exception as e:
-#             messages.error(request, f'Error deleting employee: {str(e)}')
-#     return redirect('modify-employee')
+def delete_employee(request, employee_id):
+    if request.method == 'POST':
+        try:
+            # Delete the employee using Django ORM, which will trigger the before_employee_delete trigger
+            call_procedure('delete_employee',[employee_id])  # The trigger will automatically be called here
+
+            # Optionally, you can add a success message
+            messages.success(request, 'Employee deleted successfully.')
+        except Employee.DoesNotExist:
+            messages.error(request, 'Employee not found.')
+        except Exception as e:
+            messages.error(request, f'Error deleting employee: {str(e)}')
+
+    return redirect('modify-employee')
+
