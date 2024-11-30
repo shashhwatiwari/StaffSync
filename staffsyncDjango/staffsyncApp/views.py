@@ -374,70 +374,104 @@ def admin_home(request):
     return render(request, 'admin-home.html', {'auditlogs': auditlogs})
 
 
-def modify_employee(request):
-    # Query to fetch employee data
-    query = "SELECT EmployeeID, EmployeeName, DepartmentID, JobTitleID FROM Employee"
-    employees = execute_query(query)  # Assuming `execute_query` returns a list of dictionaries with employee data
 
-    # Render the employee list template and pass the employee data
-    return render(request, 'employee_list.html', {'employees': employees})
 
-def edit_employee(request, employee_id):
-    # Fetch the employee data based on the provided employee_id
-    query = """
-    SELECT EmployeeID, EmployeeName, DateOfBirth, Gender, Address, MaritalStatus, OrganizationID, DepartmentID, JobTitleID, PayGradeID, SupervisorID
+
+
+# -------------------------------------------------------------------------------------------------------------------------------------------------
+# Methods for CRUD Functionality for the Admin view.
+
+
+
+
+#Method to show the list of employees in the database currently when we click the modify employee button.
+def employee_list(request):
+    # Query to fetch all employees
+    employee_query = """
+    SELECT EmployeeID, EmployeeName, DepartmentID, JobTitleID, PayGradeID
     FROM Employee
-    WHERE EmployeeID = %s
     """
-    employee_data = execute_query(query, [employee_id])
+    employees = execute_query(employee_query)
 
-    if not employee_data:
-        return redirect('modify-employee')
+    context = {
+        'employees': employees
+    }
+    return render(request, 'employee_list.html', context)
 
-    employee = employee_data[0]
 
-    # Ensure DateOfBirth is in the correct format (YYYY-MM-DD)
-    if employee.get('DateOfBirth'):
-        employee['DateOfBirth'] = employee['DateOfBirth'].strftime('%Y-%m-%d')
-
+#Method to edit the employee details.
+def edit_employee(request, employee_id):
     if request.method == 'POST':
-        # If the form is submitted, update the employee data
-        new_employee_name = request.POST.get('employee_name')
-        new_date_of_birth = request.POST.get('dateofbirth')
-        new_gender = request.POST.get('gender')
-        new_address = request.POST.get('address')
-        new_marital_status = request.POST.get('Maritalstatus')
-        new_organization_id = request.POST.get('Organizationid')
-        new_department_id = request.POST.get('Departmentid')
-        new_job_title_id = request.POST.get('Jobtitleid')
-        new_paygrade_id = request.POST.get('Paygradeid')
-        new_supervisor_id = request.POST.get('Supervisorid')
+        # Fetch current employee data
+        current_employee_data = call_procedure('EmployeeDetailsByID', [employee_id])[0]
 
-        # If SupervisorID is empty, set it to None (NULL in the database)
-        if new_supervisor_id == '':
-            new_supervisor_id = None
+        # Prepare updated data, only including changed fields
+        updated_data = {
+            'EmployeeID': employee_id,
+            'EmployeeName': current_employee_data['EmployeeName'],
+            'Address': request.POST.get('address', current_employee_data['Address']),
+            'Country': current_employee_data['Country'],
+            'DateOfBirth': current_employee_data['DateOfBirth'],
+            'Gender': request.POST.get('gender', current_employee_data['Gender']),
+            'MaritalStatus': request.POST.get('Maritalstatus', current_employee_data['MaritalStatus']),
+            'DepartmentID': request.POST.get('Departmentid', current_employee_data['DepartmentID']),
+            'JobTitleID': request.POST.get('Jobtitleid', current_employee_data['JobTitleID']),
+            'PayGradeID': request.POST.get('Paygradeid', current_employee_data['PayGradeID']),
+            'OrganizationID': request.POST.get('Organizationid', current_employee_data['OrganizationID']),
+            'SupervisorID': request.POST.get('Supervisorid', current_employee_data['SupervisorID']),
+            'NumberOfLeaves': request.POST.get('number_of_leaves', current_employee_data['NumberOfLeaves'])
+        }
 
-        # Ensure DateOfBirth is in the correct format (YYYY-MM-DD)
-        if new_date_of_birth:
-            new_date_of_birth = new_date_of_birth  # If any transformation is needed, you can add it here
+        # Filter out unchanged fields
+        updated_fields = {k: v for k, v in updated_data.items() if str(v) != str(current_employee_data.get(k))}
 
-        update_query = """
-        UPDATE Employee
-        SET EmployeeName = %s, DateOfBirth = %s, Gender = %s, Address = %s, MaritalStatus = %s,
-            OrganizationID = %s, DepartmentID = %s, JobTitleID = %s, PayGradeID = %s, SupervisorID = %s
-        WHERE EmployeeID = %s
-        """
+        if updated_fields:
+            try:
+                # Prepare the UPDATE query
+                set_clause = ', '.join([f"{k} = %s" for k in updated_fields.keys()])
+                query = f"UPDATE Employee SET {set_clause} WHERE EmployeeID = %s"
+                params = list(updated_fields.values()) + [employee_id]
 
-        execute_query(update_query, [
-            new_employee_name, new_date_of_birth, new_gender, new_address, new_marital_status,
-            new_organization_id, new_department_id, new_job_title_id, new_paygrade_id, new_supervisor_id, employee_id
-        ])
+                # Execute the UPDATE query
+                execute_query(query, params)
+                messages.success(request, 'Employee updated successfully.')
+            except Exception as e:
+                messages.error(request, f'Error updating employee: {str(e)}')
+        else:
+            messages.info(request, 'No changes were made.')
 
-        # Redirect back to the employee list page after updating
-        return redirect('modify-employee')
+        return redirect('employee_list')
 
-    return render(request, 'edit_employee.html', {'employee': employee})
+    # Fetch employee details for GET request
+    employee_details = call_procedure('EmployeeDetailsByID', [employee_id])[0]
 
+    # Fetch additional data for dropdowns
+    departments = execute_query("SELECT DepartmentID, CONCAT(DepartmentID, ': ', DepartmentName) AS DepartmentLabel FROM Department")
+    job_titles = execute_query("SELECT JobTitleID, CONCAT(JobTitleID, ': ', JobTitleName) AS JobTitleLabel FROM JobTitle")
+    pay_grades = execute_query("SELECT PayGradeID, CONCAT(PayGradeID, ': ', PayGradeName) AS PayGradeLabel FROM PayGrade")
+    organizations = execute_query("SELECT OrganizationID, CONCAT(OrganizationID, ': ', Name) AS OrganizationLabel FROM Organization")
+    supervisors = execute_query("""
+        SELECT NULL AS EmployeeID, 'None' AS EmployeeLabel
+        UNION ALL
+        SELECT EmployeeID, CONCAT(EmployeeID, ': ', EmployeeName) AS EmployeeLabel
+        FROM Employee
+        WHERE EmployeeID != %s
+    """, [employee_id])
+
+    context = {
+        'employee': employee_details,
+        'departments': departments,
+        'job_titles': job_titles,
+        'pay_grades': pay_grades,
+        'organizations': organizations,
+        'supervisors': supervisors
+    }
+
+    return render(request, 'edit_employee.html', context)
+
+
+
+#Method to delete an employee record from the databae altogether.
 # def delete_employee(request, employee_id):
 #     if request.method == 'POST':
 #         try:

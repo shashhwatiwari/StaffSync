@@ -5,154 +5,240 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Employee - StaffSync</title>
     <style>
-    /* Global styles */
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        background-color: #f4f4f4;
-        color: #333;
-    }
-
-    h1 {
-        text-align: center;
-        margin: 20px 0;
-        font-size: 24px;
-        color: #2e3b4e;
-    }
-
-    h2 {
-        font-size: 20px;
-        color: #555;
-    }
-
-    /* Form container */
-    form {
-        background-color: white;
-        padding: 30px;
-        margin: 20px 0;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        width: 80%;
-        max-width: 800px;
-    }
-
-    label {
-        font-size: 16px;
-        color: #333;
-        margin-bottom: 5px;
-        display: block;
-    }
-
-    input[type="text"], input[type="date"], select {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 15px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 16px;
-        color: #333;
-    }
-
-    input[type="text"]:focus, input[type="date"]:focus, select:focus {
-        border-color: #4CAF50;
-        outline: none;
-    }
-
-    /* Button */
-    button[type="submit"] {
-        background-color: #4CAF50;
-        color: white;
-        padding: 12px 20px;
-        font-size: 16px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s ease, transform 0.3s ease;
-        width: 100%;
-        margin-top: 20px;
-    }
-
-    button[type="submit"]:hover {
-        background-color: #45a049;
-        transform: scale(1.05);
-    }
-
-    /* Link styling */
-    a {
-        color: #007bff;
-        text-decoration: none;
-        font-size: 16px;
-        margin-top: 20px;
-    }
-
-    a:hover {
-        text-decoration: underline;
-    }
-
-    /* Back button styling */
-    .back-button {
-        display: block;
-        margin-top: 20px;
-        text-align: center;
-    }
-
-    /* Styling for inputs when there are errors */
-    .error {
-        border-color: #f44336;
-    }
-
-    /* Responsive styling */
-    @media screen and (max-width: 768px) {
-        form {
-            width: 90%;
+        /* Global styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f4;
+            color: #333;
         }
-    }
-</style>
 
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 24px;
+            color: #2e3b4e;
+        }
+
+        /* Form container */
+        form {
+            background-color: white;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+        }
+
+        label {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input[type="text"], input[type="date"], select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        input[readonly] {
+            background-color: #f9f9f9;
+        }
+
+        /* Button */
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .back-button {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        @media screen and (max-width: 768px) {
+            form {
+                width: 90%;
+            }
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 50%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <h1>Edit Employee</h1>
     <form method="POST">
         {% csrf_token %}
+
+        <!-- Employee Name (read-only) -->
         <label for="employee_name">Employee Name:</label>
-        <input type="text" id="employee_name" name="employee_name" value="{{ employee.EmployeeName }}" required><br><br>
+        <input type="text" id="employee_name" name="employee_name" value="{{ employee.EmployeeName }}" readonly>
 
+        <!-- Date of Birth (read-only) -->
         <label for="dateofbirth">Date of Birth:</label>
-        <input type="date" id="dateofbirth" name="dateofbirth" value="{{ employee.DateOfBirth }}" required><br><br>
+        <input type="date" id="dateofbirth" name="dateofbirth" value="{{ employee.DateOfBirth }}" readonly>
 
+        <!-- Gender -->
         <label for="gender">Gender:</label>
-        <input type="text" id="gender" name="gender" value="{{ employee.Gender }}" required><br><br>
+        <select id="gender" name="gender" required>
+            <option value="Male" {% if employee.Gender == "Male" %}selected{% endif %}>Male</option>
+            <option value="Female" {% if employee.Gender == "Female" %}selected{% endif %}>Female</option>
+            <option value="Other" {% if employee.Gender == "Other" %}selected{% endif %}>Other</option>
+            <option value="Prefer Not to Say" {% if employee.Gender == "Prefer Not to Say" %}selected{% endif %}>Prefer Not to Say</option>
+        </select>
 
+        <!-- Address -->
         <label for="address">Address:</label>
-        <input type="text" id="address" name="address" value="{{ employee.Address }}" required><br><br>
+        <input type="text" id="address" name="address" value="{{ employee.Address }}" required>
 
+        <!-- Marital Status -->
         <label for="Maritalstatus">Marital Status:</label>
-        <input type="text" id="Maritalstatus" name="Maritalstatus" value="{{ employee.MaritalStatus }}" required><br><br>
+        <select id="Maritalstatus" name="Maritalstatus" required>
+            <option value="Married" {% if employee.MaritalStatus == "Married" %}selected{% endif %}>Married</option>
+            <option value="Unmarried" {% if employee.MaritalStatus == "Unmarried" %}selected{% endif %}>Unmarried</option>
+        </select>
 
-        <label for="Organizationid">Organization ID:</label>
-        <input type="text" id="Organizationid" name="Organizationid" value="{{ employee.OrganizationID }}" required><br><br>
+        <!-- Organization -->
+        <label for="Organizationid">Organization:</label>
+        <select id="Organizationid" name="Organizationid" required>
+            {% for org in organizations %}
+                <option value="{{ org.OrganizationID }}" {% if org.OrganizationID == employee.OrganizationID %}selected{% endif %}>{{ org.OrganizationLabel }}</option>
+            {% endfor %}
+        </select>
 
-        <label for="Departmentid">Department ID:</label>
-        <input type="text" id="Departmentid" name="Departmentid" value="{{ employee.DepartmentID }}" required><br><br>
+        <!-- Department -->
+        <label for="Departmentid">Department:</label>
+        <select id="Departmentid" name="Departmentid" required>
+            {% for dept in departments %}
+                <option value="{{ dept.DepartmentID }}" {% if dept.DepartmentID == employee.DepartmentID %}selected{% endif %}>{{ dept.DepartmentLabel }}</option>
+            {% endfor %}
+        </select>
 
-        <label for="Jobtitleid">Job Title ID:</label>
-        <input type="text" id="Jobtitleid" name="Jobtitleid" value="{{ employee.JobTitleID }}" required><br><br>
+        <!-- Job Title -->
+        <label for="Jobtitleid">Job Title:</label>
+        <select id="Jobtitleid" name="Jobtitleid" required>
+            {% for job in job_titles %}
+                <option value="{{ job.JobTitleID }}" {% if job.JobTitleID == employee.JobTitleID %}selected{% endif %}>{{ job.JobTitleLabel }}</option>
+            {% endfor %}
+        </select>
 
-        <label for="Paygradeid">Pay Grade ID:</label>
-        <input type="text" id="Paygradeid" name="Paygradeid" value="{{ employee.PayGradeID }}" required><br><br>
+        <!-- Pay Grade -->
+        <label for="Paygradeid">Pay Grade:</label>
+        <select id="Paygradeid" name="Paygradeid" required>
+            {% for grade in pay_grades %}
+                <option value="{{ grade.PayGradeID }}" {% if grade.PayGradeID == employee.PayGradeID %}selected{% endif %}>{{ grade.PayGradeLabel }}</option>
+            {% endfor %}
+        </select>
 
-        <label for="Supervisorid">Supervisor ID:</label>
-        <input type="text" id="Supervisorid" name="Supervisorid" value="{{ employee.SupervisorID }}"><br><br>
-
+        <!-- Number of Leaves -->
+        <label for="number_of_leaves">Number of Leaves:</label>
+        <input type="number" id="number_of_leaves" name="number_of_leaves" value="{{ employee.NumberOfLeaves }}" required>
 
         <button type="submit">Save Changes</button>
     </form>
 
     <br>
-    <a href="{% url 'modify-employee' %}">Back to Employee List</a>
+
+    <!-- Modal (for showing additional info) -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>Additional information or confirmation message can go here.</p>
+        </div>
+    </div>
+
+    <script>
+        // Modal functionality (close and open actions)
+        var modal = document.getElementById("modal");
+        var btn = document.getElementById("modalBtn");
+        var span = document.getElementsByClassName("close")[0];
+
+        // Open the modal
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        // Close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // Close the modal if clicked outside
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
 </body>
 </html>
+

@@ -11,20 +11,31 @@
             padding: 0;
             display: flex;
             flex-direction: column;
-            align-items: center;
             background-color: #f9f9f9;
             color: #333;
         }
-        h1, h2 {
+
+        h1 {
             text-align: center;
             margin: 20px 0;
         }
-        .button-container {
+
+        .container {
             display: flex;
-            justify-content: center;
-            gap: 20px;  /* Adds space between buttons */
-            margin: 20px 0;  /* Adds space around the button container */
+            flex-direction: row;
+            justify-content: space-between;
+            margin: 20px;
+            gap: 20px;
         }
+
+        .button-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
         .button {
             background-color: #4CAF50;
             color: white;
@@ -34,70 +45,98 @@
             cursor: pointer;
             border-radius: 8px;
             transition: background-color 0.3s ease, transform 0.3s ease;
+            width: 100%; /* Ensures buttons stretch to the width of the column */
         }
+
         .button:hover {
             background-color: #45a049;
             transform: scale(1.05);
         }
+
+        .table-container {
+            flex: 3;
+        }
+
         table {
             border-collapse: collapse;
-            width: 90%;
+            width: 100%;
             max-width: 1000px;
-            margin: 20px 0;
+            margin: 0;
             background-color: #fff;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
+
         th, td {
             border: 1px solid #ddd;
             text-align: center;
             padding: 10px;
         }
+
         th {
             background-color: #4CAF50;
             color: white;
         }
+
         tr:nth-child(even) {
             background-color: #f2f2f2;
         }
+
         tr:hover {
             background-color: #f1f1f1;
         }
+
         td {
             color: #555;
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .button {
+                width: auto; /* Allow buttons to resize in smaller screens */
+            }
         }
     </style>
 </head>
 <body>
     <h1>Welcome, ADMIN</h1>
-    <!-- Button Container -->
-    <div class="button-container">
-        <button class="button" onclick="window.location.href='{% url 'modify-employee' %}'">Modify Employee</button>
-        <button class="button" onclick="location.href='#'">Modify User Account</button>
+    <div class="container">
+        <!-- Buttons on the left -->
+        <div class="button-column">
+            <button class="button" onclick="window.location.href='{% url 'employee_list' %}'">Modify Employee</button>
+            <button class="button" onclick="location.href='#'">Modify User Account</button>
+        </div>
+        <!-- Audit Log table on the right -->
+        <div class="table-container">
+            <h2>Audit Logs</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Action</th>
+                        <th>Table Name</th>
+                        <th>Record ID</th>
+                        <th>Time Stamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in auditlogs %}
+                    <tr>
+                        <td>{{ log.LogID }}</td>
+                        <td>{{ log.Action }}</td>
+                        <td>{{ log.TableName }}</td>
+                        <td>{{ log.RecordID }}</td>
+                        <td>{{ log.Timestamp }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-    <h2>Audit Logs</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Action</th>
-                <th>Table Name</th>
-                <th>Record ID</th>
-                <th>Time Stamp</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for log in auditlogs %}
-            <tr>
-                <td>{{ log.LogID }}</td>
-                <td>{{ log.Action }}</td>
-                <td>{{ log.TableName }}</td>
-                <td>{{ log.RecordID }}</td>
-                <td>{{ log.Timestamp }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
 </body>
 </html>
+
