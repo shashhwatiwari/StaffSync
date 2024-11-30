@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Employee - StaffSync</title>
+    <style>
+    /* Global styles */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #f4f4f4;
+        color: #333;
+    }
+
+    h1 {
+        text-align: center;
+        margin: 20px 0;
+        font-size: 24px;
+        color: #2e3b4e;
+    }
+
+    h2 {
+        font-size: 20px;
+        color: #555;
+    }
+
+    /* Form container */
+    form {
+        background-color: white;
+        padding: 30px;
+        margin: 20px 0;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 80%;
+        max-width: 800px;
+    }
+
+    label {
+        font-size: 16px;
+        color: #333;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    input[type="text"], input[type="date"], select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+        color: #333;
+    }
+
+    input[type="text"]:focus, input[type="date"]:focus, select:focus {
+        border-color: #4CAF50;
+        outline: none;
+    }
+
+    /* Button */
+    button[type="submit"] {
+        background-color: #4CAF50;
+        color: white;
+        padding: 12px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #45a049;
+        transform: scale(1.05);
+    }
+
+    /* Link styling */
+    a {
+        color: #007bff;
+        text-decoration: none;
+        font-size: 16px;
+        margin-top: 20px;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    /* Back button styling */
+    .back-button {
+        display: block;
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    /* Styling for inputs when there are errors */
+    .error {
+        border-color: #f44336;
+    }
+
+    /* Responsive styling */
+    @media screen and (max-width: 768px) {
+        form {
+            width: 90%;
+        }
+    }
+</style>
+
+</head>
+<body>
+    <h1>Edit Employee</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="employee_name">Employee Name:</label>
+        <input type="text" id="employee_name" name="employee_name" value="{{ employee.EmployeeName }}" required><br><br>
+
+        <label for="dateofbirth">Date of Birth:</label>
+        <input type="date" id="dateofbirth" name="dateofbirth" value="{{ employee.DateOfBirth }}" required><br><br>
+
+        <label for="gender">Gender:</label>
+        <input type="text" id="gender" name="gender" value="{{ employee.Gender }}" required><br><br>
+
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address" value="{{ employee.Address }}" required><br><br>
+
+        <label for="Maritalstatus">Marital Status:</label>
+        <input type="text" id="Maritalstatus" name="Maritalstatus" value="{{ employee.MaritalStatus }}" required><br><br>
+
+        <label for="Organizationid">Organization ID:</label>
+        <input type="text" id="Organizationid" name="Organizationid" value="{{ employee.OrganizationID }}" required><br><br>
+
+        <label for="Departmentid">Department ID:</label>
+        <input type="text" id="Departmentid" name="Departmentid" value="{{ employee.DepartmentID }}" required><br><br>
+
+        <label for="Jobtitleid">Job Title ID:</label>
+        <input type="text" id="Jobtitleid" name="Jobtitleid" value="{{ employee.JobTitleID }}" required><br><br>
+
+        <label for="Paygradeid">Pay Grade ID:</label>
+        <input type="text" id="Paygradeid" name="Paygradeid" value="{{ employee.PayGradeID }}" required><br><br>
+
+        <label for="Supervisorid">Supervisor ID:</label>
+        <input type="text" id="Supervisorid" name="Supervisorid" value="{{ employee.SupervisorID }}"><br><br>
+
+
+        <button type="submit">Save Changes</button>
+    </form>
+
+    <br>
+    <a href="{% url 'modify-employee' %}">Back to Employee List</a>
+</body>
+</html>

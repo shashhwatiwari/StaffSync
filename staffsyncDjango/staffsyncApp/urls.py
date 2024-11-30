@@ -11,5 +11,8 @@ urlpatterns = [
     path('employee/update-dependent/<int:dependent_id>/', views.update_dependent, name='employee-update-dependent'),
     path('delete-dependent/<int:dependent_id>/', views.delete_dependent, name='employee-delete-dependent'),
     path('admin_home/', views.admin_home, name='admin-home'),
+    path('modify_employee/', views.modify_employee, name='modify-employee'),
+    path('edit_employee/<int:employee_id>/', views.edit_employee, name='edit-employee'),
+    # path('delete-employee/<int:employee_id>/', views.delete_employee, name='employee-delete'),
 
 ]

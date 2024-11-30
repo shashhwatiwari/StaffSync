@@ -23,6 +23,9 @@ def login_view(request):
             if user['User_Role'] == 'HR':
                 print("Redirecting to HR home")  # Debug print
                 return redirect('hr-home')
+            elif user['User_Role'] == 'Admin':
+                print("Redirecting to ADMIN home")
+                return redirect('admin-home')
             else:
                 print("Redirecting to employee home")  # Debug print
                 return redirect('employee-home')
@@ -33,7 +36,6 @@ def login_view(request):
 
     # Render the login page without error for GET requests
     return render(request, 'login.html')
-
 
 
 # method for HR page
@@ -50,8 +52,6 @@ def hr_home(request):
     return render(request, 'hr-home.html', {'employees': employees})
 
 
-
-
 # Method for Regular Employees
 def employee_home(request):
     if 'user_id' not in request.session:
@@ -60,14 +60,10 @@ def employee_home(request):
     user_id = request.session['user_id']
 
     # Fetch employee's own data
-    employee_data = call_procedure('GetEmployeeDetails', [user_id]) # procedure call to SQL database
+    employee_data = call_procedure('GetEmployeeDetails', [user_id])  # procedure call to SQL database
 
     return render(request, 'employee-home.html',
                   {'employee': employee_data[0] if employee_data else None})
-
-
-
-
 
 
 # -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -110,7 +106,7 @@ def add_dependent(request):
         try:
             call_procedure('insert_dependent', [employee_id, dependent_name, dependent_age, out_param])
             print(f"Debug: New dependent ID: {out_param.value}")
-            #messages.success(request, f'Dependent added successfully. ID: {out_param.value}')
+            # messages.success(request, f'Dependent added successfully. ID: {out_param.value}')
             return redirect('employee-dependent')
         except Exception as e:
             messages.error(request, f'Error adding dependent: {str(e)}')
@@ -118,7 +114,7 @@ def add_dependent(request):
     return render(request, 'add_dependent.html')
 
 
-#Method to update a dependent
+# Method to update a dependent
 def update_dependent(request, dependent_id):
     if request.method == 'POST':
         dependent_name = request.POST.get('dependentName')
@@ -136,20 +132,15 @@ def update_dependent(request, dependent_id):
     return redirect('employee-dependent')
 
 
-
-#Method to delete a dependent
+# Method to delete a dependent
 def delete_dependent(request, dependent_id):
     if request.method == 'POST':
         try:
             call_procedure('delete_dependent', [dependent_id])
-            #messages.success(request, 'Dependent deleted successfully.')
+            # messages.success(request, 'Dependent deleted successfully.')
         except Exception as e:
             messages.error(request, f'Error deleting dependent: {str(e)}')
     return redirect('employee-dependent')
-
-
-
-
 
 
 # -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -165,7 +156,7 @@ def view_emergency_contacts(request):
     return render(request, 'view_emergency_contacts.html', {'contacts': contacts})
 
 
-#method to view the audit logs:
+# method to view the audit logs:
 def admin_home(request):
     if 'user_id' not in request.session:
         return redirect('login')
@@ -173,3 +164,77 @@ def admin_home(request):
     auditlogs = execute_query(query)  # Assuming `execute_query` returns a list of rows
 
     return render(request, 'admin-home.html', {'auditlogs': auditlogs})
+
+
+def modify_employee(request):
+    # Query to fetch employee data
+    query = "SELECT EmployeeID, EmployeeName, DepartmentID, JobTitleID FROM Employee"
+    employees = execute_query(query)  # Assuming `execute_query` returns a list of dictionaries with employee data
+
+    # Render the employee list template and pass the employee data
+    return render(request, 'employee_list.html', {'employees': employees})
+
+def edit_employee(request, employee_id):
+    # Fetch the employee data based on the provided employee_id
+    query = """
+    SELECT EmployeeID, EmployeeName, DateOfBirth, Gender, Address, MaritalStatus, OrganizationID, DepartmentID, JobTitleID, PayGradeID, SupervisorID
+    FROM Employee
+    WHERE EmployeeID = %s
+    """
+    employee_data = execute_query(query, [employee_id])
+
+    if not employee_data:
+        return redirect('modify-employee')
+
+    employee = employee_data[0]
+
+    # Ensure DateOfBirth is in the correct format (YYYY-MM-DD)
+    if employee.get('DateOfBirth'):
+        employee['DateOfBirth'] = employee['DateOfBirth'].strftime('%Y-%m-%d')
+
+    if request.method == 'POST':
+        # If the form is submitted, update the employee data
+        new_employee_name = request.POST.get('employee_name')
+        new_date_of_birth = request.POST.get('dateofbirth')
+        new_gender = request.POST.get('gender')
+        new_address = request.POST.get('address')
+        new_marital_status = request.POST.get('Maritalstatus')
+        new_organization_id = request.POST.get('Organizationid')
+        new_department_id = request.POST.get('Departmentid')
+        new_job_title_id = request.POST.get('Jobtitleid')
+        new_paygrade_id = request.POST.get('Paygradeid')
+        new_supervisor_id = request.POST.get('Supervisorid')
+
+        # If SupervisorID is empty, set it to None (NULL in the database)
+        if new_supervisor_id == '':
+            new_supervisor_id = None
+
+        # Ensure DateOfBirth is in the correct format (YYYY-MM-DD)
+        if new_date_of_birth:
+            new_date_of_birth = new_date_of_birth  # If any transformation is needed, you can add it here
+
+        update_query = """
+        UPDATE Employee
+        SET EmployeeName = %s, DateOfBirth = %s, Gender = %s, Address = %s, MaritalStatus = %s,
+            OrganizationID = %s, DepartmentID = %s, JobTitleID = %s, PayGradeID = %s, SupervisorID = %s
+        WHERE EmployeeID = %s
+        """
+
+        execute_query(update_query, [
+            new_employee_name, new_date_of_birth, new_gender, new_address, new_marital_status,
+            new_organization_id, new_department_id, new_job_title_id, new_paygrade_id, new_supervisor_id, employee_id
+        ])
+
+        # Redirect back to the employee list page after updating
+        return redirect('modify-employee')
+
+    return render(request, 'edit_employee.html', {'employee': employee})
+
+# def delete_employee(request, employee_id):
+#     if request.method == 'POST':
+#         try:
+#             call_procedure('delete_dependent', [employee_id])
+#             # messages.success(request, 'Dependent deleted successfully.')
+#         except Exception as e:
+#             messages.error(request, f'Error deleting employee: {str(e)}')
+#     return redirect('modify-employee')

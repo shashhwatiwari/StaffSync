@@ -19,6 +19,26 @@
             text-align: center;
             margin: 20px 0;
         }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;  /* Adds space between buttons */
+            margin: 20px 0;  /* Adds space around the button container */
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
         table {
             border-collapse: collapse;
             width: 90%;
@@ -51,6 +71,11 @@
 </head>
 <body>
     <h1>Welcome, ADMIN</h1>
+    <!-- Button Container -->
+    <div class="button-container">
+        <button class="button" onclick="window.location.href='{% url 'modify-employee' %}'">Modify Employee</button>
+        <button class="button" onclick="location.href='#'">Modify User Account</button>
+    </div>
     <h2>Audit Logs</h2>
     <table>
         <thead>
