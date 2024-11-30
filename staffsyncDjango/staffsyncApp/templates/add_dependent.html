@@ -69,11 +69,6 @@
 <body>
     <h1>Add Dependent</h1>
     <div class="form-container">
-        {% if messages %}
-        {% for message in messages %}
-        <div class="{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-        {% endif %}
         <form method="POST" action="{% url 'employee-add-dependent' %}">
             {% csrf_token %}
             <label for="dependent_name">Dependent Name:</label>
