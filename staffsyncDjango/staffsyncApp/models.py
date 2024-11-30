@@ -43,19 +43,6 @@ class Dependentinfo(models.Model):
         db_table = 'DependentInfo'
 
 
-class Emergencycontact(models.Model):
-    emergencycontactid = models.AutoField(db_column='EmergencyContactID', primary_key=True)  # Field name made lowercase.
-    primaryname = models.CharField(db_column='PrimaryName', max_length=100, blank=True, null=True)  # Field name made lowercase.
-    primaryphonenumber = models.CharField(db_column='PrimaryPhoneNumber', max_length=20, blank=True, null=True)  # Field name made lowercase.
-    secondaryname = models.CharField(db_column='SecondaryName', max_length=100, blank=True, null=True)  # Field name made lowercase.
-    secondaryphonenumber = models.CharField(db_column='SecondaryPhoneNumber', max_length=20, blank=True, null=True)  # Field name made lowercase.
-    address = models.CharField(db_column='Address', max_length=200, blank=True, null=True)  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'EmergencyContact'
-
-
 class Employee(models.Model):
     employeeid = models.AutoField(db_column='EmployeeID', primary_key=True)  # Field name made lowercase.
     employeename = models.CharField(db_column='EmployeeName', max_length=100)  # Field name made lowercase.
@@ -78,14 +65,16 @@ class Employee(models.Model):
         return self.employeename
 
 
-class Employeeemergencycontact(models.Model):
-    emergencycontactid = models.OneToOneField(Emergencycontact, models.DO_NOTHING, db_column='EmergencyContactID', primary_key=True)  # Field name made lowercase. The composite primary key (EmergencyContactID, EmployeeID) found, that is not supported. The first column is selected.
-    employeeid = models.ForeignKey(Employee, models.DO_NOTHING, db_column='EmployeeID')  # Field name made lowercase.
+class EmergencyContact(models.Model):
+    emergencycontactid = models.AutoField(db_column='EmergencyContactID', primary_key=True)
+    employeeid = models.ForeignKey(Employee, on_delete=models.CASCADE, db_column='EmployeeID')
+    contactname = models.CharField(db_column='ContactName', max_length=100, blank=True, null=True)
+    phonenumber = models.CharField(db_column='PhoneNumber', max_length=20, blank=True, null=True)
+    address = models.CharField(db_column='Address', max_length=200, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'EmployeeEmergencyContact'
-        unique_together = (('emergencycontactid', 'employeeid'),)
+        db_table = 'EmergencyContact'
 
 
 class Jobtitle(models.Model):

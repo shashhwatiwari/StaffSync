@@ -395,18 +395,44 @@ DELIMITER ;
 
 -- procedure to get employee details
 DELIMITER //
-CREATE PROCEDURE get_employee_details(IN p_EmployeeID INT)
+
+CREATE PROCEDURE GetEmployeeDetails(IN p_EmployeeID INT)
 BEGIN
-    SELECT e.*, d.DepartmentName, j.JobTitleName, p.PayGradeName, o.Name AS OrganizationName
-    FROM Employee e
+    SELECT
+        e.EmployeeID,
+        e.EmployeeName,
+        e.Address,
+        e.Country,
+        e.DateOfBirth,
+        e.Gender,
+        e.MaritalStatus,
+        d.DepartmentName,
+        j.JobTitleName,
+        p.PayGradeName,
+        o.Name AS OrganizationName,
+        (SELECT COUNT(*)
+         FROM DependentInfo di
+         WHERE di.EmployeeID = e.EmployeeID) AS DependentCount,
+        (SELECT COUNT(*)
+         FROM EmployeeEmergencyContact ec
+         WHERE ec.EmployeeID = e.EmployeeID) AS EmergencyContactCount,
+        (SELECT SUM(l.LeaveDayCount)
+         FROM Leave_tracker l
+         WHERE l.EmployeeID = e.EmployeeID
+         AND l.Approved = TRUE) AS TotalLeavesUsed
+    FROM
+        Employee e
     LEFT JOIN Department d ON e.DepartmentID = d.DepartmentID
     LEFT JOIN JobTitle j ON e.JobTitleID = j.JobTitleID
     LEFT JOIN PayGrade p ON e.PayGradeID = p.PayGradeID
     LEFT JOIN Organization o ON e.OrganizationID = o.OrganizationID
-    WHERE e.EmployeeID = p_EmployeeID;
-END;
-//
+    WHERE
+        e.EmployeeID = p_EmployeeID;
+END //
+
 DELIMITER ;
+
+
 
 
 -- inserting a new department

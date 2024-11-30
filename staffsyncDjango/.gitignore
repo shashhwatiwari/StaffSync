@@ -18,3 +18,4 @@ staffsyncApp/migrations/
 
 # Ignore database dump (if any)
 *.sql
+/staffsyncDjango/.env
