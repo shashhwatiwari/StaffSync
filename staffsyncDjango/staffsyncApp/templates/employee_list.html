@@ -16,6 +16,25 @@
             text-align: center;
             margin: 20px 0;
         }
+        .add-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .add-btn:hover {
+            background-color: #45a049;
+        }
         table {
             width: 90%;
             max-width: 1000px;
@@ -85,6 +104,10 @@
 </head>
 <body>
 <h1>Modify Employees</h1>
+
+<!-- Add Employee Button -->
+<a onclick="window.location.href='{% url 'add-employee' %}'" class="add-btn">Add Employee</a>
+
 <table>
     <thead>
     <tr>

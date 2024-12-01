@@ -22,7 +22,6 @@ def login_view(request):
             request.session['user_role'] = user['User_Role']
             request.session['emp_id'] = user['EmployeeID']
 
-
             if user['User_Role'] == 'HR':
                 print("Redirecting to HR home")  # Debug print
                 return redirect('hr-home')
@@ -41,14 +40,12 @@ def login_view(request):
     return render(request, 'login.html')
 
 
-
 # method for HR page
 def hr_home(request):
     if request.session.get('user_role') != 'HR':
         return redirect('login')
 
     logged_in_user_emp_id = request.session.get('emp_id')
-
 
     # retrieving the organization data for the logged in employee so that they are only able
     # to see employees working for their organization
@@ -97,7 +94,6 @@ def hr_home(request):
     return render(request, 'hr-home.html', context)
 
 
-
 # Method for Regular Employees
 def employee_home(request):
     if 'user_id' not in request.session:
@@ -121,10 +117,6 @@ def employee_home(request):
 
     return render(request, 'employee-home.html',
                   {'employee': employee_data[0] if employee_data else None})
-
-
-
-
 
 
 # -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -174,7 +166,7 @@ def add_dependent(request):
     return render(request, 'add_dependent.html')
 
 
-#Method to update a dependent
+# Method to update a dependent
 def update_dependent(request, dependent_id):
     if request.method == 'POST':
         dependent_name = request.POST.get('dependentName')
@@ -192,20 +184,15 @@ def update_dependent(request, dependent_id):
     return redirect('employee-dependent')
 
 
-
-#Method to delete a dependent
+# Method to delete a dependent
 def delete_dependent(request, dependent_id):
     if request.method == 'POST':
         try:
             call_procedure('delete_dependent', [dependent_id])
-            #messages.success(request, 'Dependent deleted successfully.')
+            # messages.success(request, 'Dependent deleted successfully.')
         except Exception as e:
             messages.error(request, f'Error deleting dependent: {str(e)}')
     return redirect('employee-dependent')
-
-
-
-
 
 
 # -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -221,7 +208,7 @@ def view_emergency_contacts(request):
     return render(request, 'view_emergency_contacts.html', {'contacts': contacts})
 
 
-#Method to add an employees emergency contact
+# Method to add an employees emergency contact
 def add_emergency_contact(request):
     if request.method == 'POST':
         employee_id = request.session.get('emp_id')
@@ -240,7 +227,7 @@ def add_emergency_contact(request):
     return render(request, 'add_emergency_contact.html')
 
 
-#Method to update an emergency contact
+# Method to update an emergency contact
 def update_emergency_contact(request, contact_id):
     if request.method == 'POST':
         contact_name = request.POST.get('contact_name')
@@ -261,7 +248,7 @@ def update_emergency_contact(request, contact_id):
     return render(request, 'update_emergency_contact.html', {'contact': contact})
 
 
-#Method to delete emergency contact for an employee
+# Method to delete emergency contact for an employee
 def delete_emergency_contact(request, contact_id):
     if request.method == 'POST':
         try:
@@ -274,7 +261,7 @@ def delete_emergency_contact(request, contact_id):
 
 # -------------------------------------------------------------------------------------------------------------------------------------------------
 
-#Method to log a leave
+# Method to log a leave
 
 def log_leave(request):
     if request.method == 'POST':
@@ -299,8 +286,7 @@ def log_leave(request):
     return render(request, 'log_leave.html')
 
 
-
-#Method to view leaves logged by an employee.
+# Method to view leaves logged by an employee.
 def view_employee_leaves(request):
     if 'user_id' not in request.session:
         return redirect('login')
@@ -313,8 +299,6 @@ def view_employee_leaves(request):
     except Exception as e:
         messages.error(request, f'Error retrieving leave data: {str(e)}')
         return redirect('employee_dashboard')
-
-
 
 
 # -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -359,7 +343,7 @@ def update_employeeHR(request):
                 supervisor_id,
                 employee_data['NumberOfLeaves']
             ])
-            #messages.success(request, 'Employee updated successfully.')
+            # messages.success(request, 'Employee updated successfully.')
         except Exception as e:
             messages.error(request, f'Error updating employee: {str(e)}')
 
@@ -376,15 +360,11 @@ def admin_home(request):
     return render(request, 'admin-home.html', {'auditlogs': auditlogs})
 
 
-
-
 # -------------------------------------------------------------------------------------------------------------------------------------------------
 # Methods for CRUD Functionality for the Admin view.
 
 
-
-
-#Method to show the list of employees in the database currently when we click the modify employee button.
+# Method to show the list of employees in the database currently when we click the modify employee button.
 def employee_list(request):
     # Query to fetch all employees
     employee_query = """
@@ -399,7 +379,7 @@ def employee_list(request):
     return render(request, 'employee_list.html', context)
 
 
-#Method to edit the employee details.
+# Method to edit the employee details.
 def edit_employee(request, employee_id):
     if request.method == 'POST':
         # Fetch current employee data
@@ -446,10 +426,14 @@ def edit_employee(request, employee_id):
     employee_details = call_procedure('EmployeeDetailsByID', [employee_id])[0]
 
     # Fetch additional data for dropdowns
-    departments = execute_query("SELECT DepartmentID, CONCAT(DepartmentID, ': ', DepartmentName) AS DepartmentLabel FROM Department")
-    job_titles = execute_query("SELECT JobTitleID, CONCAT(JobTitleID, ': ', JobTitleName) AS JobTitleLabel FROM JobTitle")
-    pay_grades = execute_query("SELECT PayGradeID, CONCAT(PayGradeID, ': ', PayGradeName) AS PayGradeLabel FROM PayGrade")
-    organizations = execute_query("SELECT OrganizationID, CONCAT(OrganizationID, ': ', Name) AS OrganizationLabel FROM Organization")
+    departments = execute_query(
+        "SELECT DepartmentID, CONCAT(DepartmentID, ': ', DepartmentName) AS DepartmentLabel FROM Department")
+    job_titles = execute_query(
+        "SELECT JobTitleID, CONCAT(JobTitleID, ': ', JobTitleName) AS JobTitleLabel FROM JobTitle")
+    pay_grades = execute_query(
+        "SELECT PayGradeID, CONCAT(PayGradeID, ': ', PayGradeName) AS PayGradeLabel FROM PayGrade")
+    organizations = execute_query(
+        "SELECT OrganizationID, CONCAT(OrganizationID, ': ', Name) AS OrganizationLabel FROM Organization")
     supervisors = execute_query("""
         SELECT NULL AS EmployeeID, 'None' AS EmployeeLabel
         UNION ALL
@@ -469,11 +453,13 @@ def edit_employee(request, employee_id):
 
     return render(request, 'edit_employee.html', context)
 
+
+# method to delete employee
 def delete_employee(request, employee_id):
     if request.method == 'POST':
         try:
             # Delete the employee using Django ORM, which will trigger the before_employee_delete trigger
-            call_procedure('delete_employee',[employee_id])  # The trigger will automatically be called here
+            call_procedure('delete_employee', [employee_id])  # The trigger will automatically be called here
 
             # Optionally, you can add a success message
             messages.success(request, 'Employee deleted successfully.')
@@ -482,5 +468,33 @@ def delete_employee(request, employee_id):
         except Exception as e:
             messages.error(request, f'Error deleting employee: {str(e)}')
 
-    return redirect('modify-employee')
+    return redirect('employee_list')
 
+
+# method to add a new employee
+def add_employee(request):
+    if request.method == 'POST':
+        employee_id = request.session.get('emp_id')
+        employee_name = request.POST.get('employee_name')
+        date_of_birth = request.POST.get('date_of_birth')
+        gender = request.POST.get('gender')
+        marital_status = request.POST.get('marital_status')
+        address = request.POST.get('address')
+        country = request.POST.get('country')
+        organizationid = request.POST.get('organizationid')
+        department = request.POST.get('department')
+        job_title = request.POST.get('job_title')
+        paygrade = request.POST.get('paygrade')
+        supervisor = request.POST.get('supervisor')
+        numberofleaves = request.POST.get('number_of_leaves')
+
+        out_param = OutParam()
+        try:
+            call_procedure('insert_employee',
+                           [employee_id, employee_name, date_of_birth, gender, marital_status, address, country,
+                            organizationid, department, job_title, paygrade, supervisor, numberofleaves, out_param])
+        except Exception as e:
+            messages.error(request, f'Error adding employee: {str(e)}')
+        return redirect('employee_list')
+
+    return render(request, 'add_employee.html')
