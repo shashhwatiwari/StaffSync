@@ -631,16 +631,31 @@ def delete_organization(request, organization_id):
 #method to view department list
 def department_list(request):
     # Query to fetch all departments
-    department_query = """
-        SELECT DepartmentID, DepartmentName
-        FROM Department
-        """
+    department_query = "SELECT DepartmentID, DepartmentName FROM Department"
     departments = execute_query(department_query)
 
     context = {
         'departments': departments
     }
     return render(request, 'department_list.html', context)
+
+
+# Method to create a new department
+def add_department(request):
+    if request.method == 'POST':
+        department_name = request.POST.get('department_name')
+
+        # Generate the next DepartmentID (example: max ID + 1)
+        next_department_id = execute_query("SELECT IFNULL(MAX(DepartmentID), 0) + 1 AS NextID FROM Department")[0]['NextID']
+
+        try:
+            call_procedure('insert_department', [next_department_id, department_name])
+            messages.success(request, 'Department added successfully.')
+        except Exception as e:
+            messages.error(request, f'Error adding department: {str(e)}')
+
+    return redirect('department_list')
+
 
 #method to update department
 def edit_department(request, department_id):
@@ -659,48 +674,13 @@ def edit_department(request, department_id):
 
 #method to delete department
 def delete_department(request, department_id):
-    # Fetch all departments except the one being deleted
-    departments = execute_query(
-        "SELECT DepartmentID, DepartmentName FROM Department WHERE DepartmentID != %s", [department_id]
-    )
-
-    # Fetch the current department name for context
-    current_department = execute_query(
-        "SELECT DepartmentName FROM Department WHERE DepartmentID = %s", [department_id]
-    )
-
     if request.method == 'POST':
-        # Get the new department ID from the form
-        new_department_id = request.POST.get('new_department_id')
         try:
-            # Call the procedure with the department to delete and new department for reassignment
-            call_procedure('delete_department_reassign', [department_id, new_department_id])
-            messages.success(request, 'Department deleted successfully and employees reassigned.')
+            call_procedure('delete_department', [department_id])
+            messages.success(request, 'Department deleted successfully.')
         except Exception as e:
             messages.error(request, f'Error deleting department: {str(e)}')
-        return redirect('department_list')
-
-    # Render the confirmation form with departments for reassignment
-    return render(request, 'delete_department.html', {
-        'departments': departments,
-        'current_department': current_department[0]['DepartmentName'] if current_department else 'Unknown',
-    })
-
-#method to create a new department
-# Method to create a new department
-def add_department(request):
-    if request.method == 'POST':
-        department_name = request.POST.get('department_name')
-
-        # Generate the next DepartmentID (example: max ID + 1)
-        next_department_id = execute_query("SELECT IFNULL(MAX(DepartmentID), 0) + 1 AS NextID FROM Department")[0]['NextID']
-
-        try:
-            call_procedure('insert_department', [next_department_id, department_name])
-            messages.success(request, 'Department added successfully.')
-        except Exception as e:
-            messages.error(request, f'Error adding department: {str(e)}')
-
     return redirect('department_list')
+
 
 
