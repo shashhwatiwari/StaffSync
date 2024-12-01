@@ -25,6 +25,17 @@ urlpatterns = [
     path('delete_employee/<int:employee_id>/', views.delete_employee, name='employee-delete'),
     path('add_employee/', views.add_employee, name='add-employee'),
 
+    path('job-titles/', views.job_title_list, name='job_title_list'),
+    path('add-job-title/', views.add_job_title, name='add_job_title'),
+    path('edit-job-title/<int:job_title_id>/', views.edit_job_title, name='edit-job-title'),
+    path('delete-job-title/<int:job_title_id>/', views.delete_job_title, name='delete-job-title'),
+
+    path('organization_list/', views.organization_list, name='organization_list'),
+    path('add_organization/', views.add_organization, name='add_organization'),
+    path('edit_organization/<int:organization_id>/', views.edit_organization, name='edit-organization'),
+    path('delete_organization/<int:organization_id>/', views.delete_organization, name='delete-organization'),
+
+
     path('department_list/', views.department_list, name='department_list'),
     path('edit_department/<int:department_id>/', views.edit_department, name='edit_department'),
     path('delete_department/<int:department_id>/', views.delete_department, name='delete_department'),

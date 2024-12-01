@@ -513,11 +513,14 @@ def add_employee(request):
 
         out_param = OutParam()  # Ensure OutParam is properly defined elsewhere
         try:
+            print("Going to call procedure")
             call_procedure('insert_employee',
                            [employee_name, date_of_birth, gender, marital_status, address, country,
                             organizationid, department, job_title, paygrade, supervisor, number_of_leaves, out_param])
+            print("Called procedure")
             messages.success(request, 'Employee added successfully.')
         except Exception as e:
+            print("Could not call procedure")
             messages.error(request, f"Error adding employee: {str(e)}")
         return redirect('employee_list')
 
@@ -528,6 +531,100 @@ def add_employee(request):
         'pay_grades': pay_grades,
         'supervisors': supervisors,
     })
+
+
+
+def job_title_list(request):
+    # Query to fetch all job titles
+    job_title_query = "SELECT * FROM JobTitle"
+    job_titles = execute_query(job_title_query)
+
+    context = {
+        'job_titles': job_titles
+    }
+    return render(request, 'job_title_list.html', context)
+
+def add_job_title(request):
+    if request.method == 'POST':
+        job_title_name = request.POST.get('job_title_name')
+        try:
+            call_procedure('insert_job_title', [job_title_name])
+            messages.success(request, 'Job title added successfully.')
+            return redirect('job_title_list')
+        except Exception as e:
+            messages.error(request, f'Error adding job title: {str(e)}')
+    return render(request, 'add_job_title.html')
+
+def edit_job_title(request, job_title_id):
+    job_title = execute_query("SELECT * FROM JobTitle WHERE JobTitleID = %s", [job_title_id])[0]
+    if request.method == 'POST':
+        new_job_title_name = request.POST.get('job_title_name')
+        try:
+            call_procedure('update_job_title_name', [job_title_id, new_job_title_name])
+            messages.success(request, 'Job title updated successfully.')
+            return redirect('job_title_list')
+        except Exception as e:
+            messages.error(request, f'Error updating job title: {str(e)}')
+    return render(request, 'edit_job_title.html', {'job_title': job_title})
+
+
+def delete_job_title(request, job_title_id):
+    if request.method == 'POST':
+        try:
+            call_procedure('delete_job_title', [job_title_id])
+            messages.success(request, 'Job title deleted successfully.')
+        except Exception as e:
+            messages.error(request, f'Error deleting job title: {str(e)}')
+    return redirect('job_title_list')
+
+
+
+def organization_list(request):
+    organization_query = "SELECT * FROM Organization"
+    organizations = execute_query(organization_query)
+    context = {
+        'organizations': organizations
+    }
+    return render(request, 'organization_list.html', context)
+
+
+def add_organization(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        address = request.POST.get('address')
+        registration_number = request.POST.get('registration_number')
+        try:
+            call_procedure('insert_organization', [name, address, registration_number])
+            messages.success(request, 'Organization added successfully.')
+            return redirect('organization_list')
+        except Exception as e:
+            messages.error(request, f'Error adding organization: {str(e)}')
+    return render(request, 'add_organization.html')
+
+
+def edit_organization(request, organization_id):
+    organization = execute_query("SELECT * FROM Organization WHERE OrganizationID = %s", [organization_id])[0]
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        address = request.POST.get('address')
+        registration_number = request.POST.get('registration_number')
+        try:
+            call_procedure('update_organization', [organization_id, name, address, registration_number])
+            messages.success(request, 'Organization updated successfully.')
+            return redirect('organization_list')
+        except Exception as e:
+            messages.error(request, f'Error updating organization: {str(e)}')
+    return render(request, 'edit_organization.html', {'organization': organization})
+
+
+def delete_organization(request, organization_id):
+    if request.method == 'POST':
+        try:
+            call_procedure('delete_organization', [organization_id])
+            messages.success(request, 'Organization deleted successfully.')
+        except Exception as e:
+            messages.error(request, f'Error deleting organization: {str(e)}')
+    return redirect('organization_list')
 
 # ------------------------------------------------------------------
 
