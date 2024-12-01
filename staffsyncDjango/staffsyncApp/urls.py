@@ -41,4 +41,9 @@ urlpatterns = [
     path('delete_department/<int:department_id>/', views.delete_department, name='delete_department'),
     path('add_department/', views.add_department, name='add_department'),
 
+    path('paygrade_list/', views.paygrade_list, name='paygrade_list'),
+    path('add_paygrade/', views.add_paygrade, name='add_paygrade'),
+    path('edit_paygrade/<int:paygrade_id>/', views.edit_paygrade, name='edit_paygrade'),
+    path('delete_paygrade/<int:paygrade_id>/', views.delete_paygrade, name='delete_paygrade'),
+
 ]

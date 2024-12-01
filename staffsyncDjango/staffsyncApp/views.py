@@ -483,11 +483,11 @@ def add_employee(request):
     organizations = execute_query(
         "SELECT OrganizationID, CONCAT(OrganizationID, ': ', Name) AS OrganizationLabel FROM Organization")
     supervisors = execute_query(
-         """
-        SELECT NULL AS EmployeeID, 'None' AS EmployeeLabel
-        UNION ALL
-        SELECT EmployeeID, CONCAT(EmployeeID, ': ', EmployeeName) AS EmployeeLabel
-        FROM Employee"""
+        """
+       SELECT NULL AS EmployeeID, 'None' AS EmployeeLabel
+       UNION ALL
+       SELECT EmployeeID, CONCAT(EmployeeID, ': ', EmployeeName) AS EmployeeLabel
+       FROM Employee"""
     )
 
     if request.method == 'POST':
@@ -533,7 +533,6 @@ def add_employee(request):
     })
 
 
-
 def job_title_list(request):
     # Query to fetch all job titles
     job_title_query = "SELECT * FROM JobTitle"
@@ -543,6 +542,7 @@ def job_title_list(request):
         'job_titles': job_titles
     }
     return render(request, 'job_title_list.html', context)
+
 
 def add_job_title(request):
     if request.method == 'POST':
@@ -554,6 +554,7 @@ def add_job_title(request):
         except Exception as e:
             messages.error(request, f'Error adding job title: {str(e)}')
     return render(request, 'add_job_title.html')
+
 
 def edit_job_title(request, job_title_id):
     job_title = execute_query("SELECT * FROM JobTitle WHERE JobTitleID = %s", [job_title_id])[0]
@@ -576,7 +577,6 @@ def delete_job_title(request, job_title_id):
         except Exception as e:
             messages.error(request, f'Error deleting job title: {str(e)}')
     return redirect('job_title_list')
-
 
 
 def organization_list(request):
@@ -626,9 +626,10 @@ def delete_organization(request, organization_id):
             messages.error(request, f'Error deleting organization: {str(e)}')
     return redirect('organization_list')
 
-# ------------------------------------------------------------------
 
-#method to view department list
+# ----------------------------Department--------------------------------------
+
+# method to view department list
 def department_list(request):
     # Query to fetch all departments
     department_query = "SELECT DepartmentID, DepartmentName FROM Department"
@@ -646,7 +647,8 @@ def add_department(request):
         department_name = request.POST.get('department_name')
 
         # Generate the next DepartmentID (example: max ID + 1)
-        next_department_id = execute_query("SELECT IFNULL(MAX(DepartmentID), 0) + 1 AS NextID FROM Department")[0]['NextID']
+        next_department_id = execute_query("SELECT IFNULL(MAX(DepartmentID), 0) + 1 AS NextID FROM Department")[0][
+            'NextID']
 
         try:
             call_procedure('insert_department', [next_department_id, department_name])
@@ -657,7 +659,7 @@ def add_department(request):
     return redirect('department_list')
 
 
-#method to update department
+# method to update department
 def edit_department(request, department_id):
     if request.method == 'POST':
         department_name = request.POST.get('department_name')
@@ -672,7 +674,7 @@ def edit_department(request, department_id):
     return redirect('department_list')  # Default redirect
 
 
-#method to delete department
+# method to delete department
 def delete_department(request, department_id):
     if request.method == 'POST':
         try:
@@ -683,4 +685,56 @@ def delete_department(request, department_id):
     return redirect('department_list')
 
 
+# -------------------------PayGrade-----------------------------------------
 
+def paygrade_list(request):
+    paygrade_query = "SELECT * FROM Paygrade"
+    paygrades = execute_query(paygrade_query)
+    context = {'paygrades': paygrades}  # Use a string key for the dictionary
+    return render(request, 'paygrade_list.html', context)
+
+
+def add_paygrade(request):
+    if request.method == 'POST':
+        paygrade_name = request.POST.get('paygrade_name')
+        salary_amount = request.POST.get('salary_amount')
+        try:
+
+            call_procedure('insert_paygrade', [paygrade_name, salary_amount])
+            messages.success(request, 'Paygrade added successfully.')
+            return redirect('paygrade_list')
+
+        except Exception as e:
+            messages.error(request, f'Error adding paygrade: {str(e)}')
+            return redirect('paygrade_list')
+
+    return redirect('paygrade_list')
+
+
+def edit_paygrade(request, paygrade_id):
+    if request.method == 'POST':
+        paygrade_name = request.POST.get('paygrade_name')
+        salary_amount = request.POST.get('salary_amount')
+
+        try:
+            call_procedure('update_paygrade', [paygrade_id, paygrade_name, salary_amount])
+            messages.success(request, 'Paygrade updated successfully.')
+            return redirect('paygrade_list')
+
+        except Exception as e:
+            messages.error(request, f'Error updating paygrade: {str(e)}')
+            return redirect('paygrade_list')
+
+    redirect('paygrade_list')
+
+
+def delete_paygrade(request, paygrade_id):
+    if request.method == 'POST':
+        try:
+            # Call the delete stored procedure
+            call_procedure('delete_paygrade', [paygrade_id])
+            messages.success(request, 'PayGrade deleted successfully.')
+        except Exception as e:
+            messages.error(request, f'Error deleting PayGrade: {str(e)}')
+
+    return redirect('paygrade_list')
