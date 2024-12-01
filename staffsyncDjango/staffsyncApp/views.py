@@ -2,9 +2,6 @@ from django.shortcuts import render, redirect
 from .db_utils import execute_query, call_procedure, OutParam
 from django.contrib import messages
 
-from .models import Employee
-
-
 # login method
 def login_view(request):
     if request.method == 'POST':
@@ -473,28 +470,48 @@ def delete_employee(request, employee_id):
 
 # method to add a new employee
 def add_employee(request):
+    # Fetch data for dropdowns
+    departments = execute_query(
+        "SELECT DepartmentID, CONCAT(DepartmentID, ': ', DepartmentName) AS DepartmentLabel FROM Department")
+    job_titles = execute_query(
+        "SELECT JobTitleID, CONCAT(JobTitleID, ': ', JobTitleName) AS JobTitleLabel FROM JobTitle")
+    pay_grades = execute_query(
+        "SELECT PayGradeID, CONCAT(PayGradeID, ': ', PayGradeName) AS PayGradeLabel FROM PayGrade")
+    organizations = execute_query(
+        "SELECT OrganizationID, CONCAT(OrganizationID, ': ', Name) AS OrganizationLabel FROM Organization")
+    supervisors = execute_query(
+        "SELECT EmployeeID, CONCAT(EmployeeID, ': ', EmployeeName) AS EmployeeLabel FROM Employee"
+    )
+
     if request.method == 'POST':
-        employee_id = request.session.get('emp_id')
         employee_name = request.POST.get('employee_name')
-        date_of_birth = request.POST.get('date_of_birth')
+        date_of_birth = request.POST.get('dateofbirth')
         gender = request.POST.get('gender')
-        marital_status = request.POST.get('marital_status')
+        marital_status = request.POST.get('Maritalstatus')
         address = request.POST.get('address')
         country = request.POST.get('country')
-        organizationid = request.POST.get('organizationid')
-        department = request.POST.get('department')
-        job_title = request.POST.get('job_title')
-        paygrade = request.POST.get('paygrade')
-        supervisor = request.POST.get('supervisor')
-        numberofleaves = request.POST.get('number_of_leaves')
+        organizationid = request.POST.get('Organizationid')
+        department = request.POST.get('Departmentid')
+        job_title = request.POST.get('Jobtitleid')
+        paygrade = request.POST.get('Paygradeid')
+        supervisor = request.POST.get('Supervisorid')
+        number_of_leaves = request.POST.get('number_of_leaves', 20)  # Default to 20 if not provided
 
-        out_param = OutParam()
+        out_param = OutParam()  # Ensure OutParam is properly defined elsewhere
         try:
             call_procedure('insert_employee',
-                           [employee_id, employee_name, date_of_birth, gender, marital_status, address, country,
-                            organizationid, department, job_title, paygrade, supervisor, numberofleaves, out_param])
+                           [employee_name, date_of_birth, gender, marital_status, address, country,
+                            organizationid, department, job_title, paygrade, supervisor, number_of_leaves, out_param])
+            messages.success(request, 'Employee added successfully.')
         except Exception as e:
-            messages.error(request, f'Error adding employee: {str(e)}')
+            messages.error(request, f"Error adding employee: {str(e)}")
         return redirect('employee_list')
 
-    return render(request, 'add_employee.html')
+    return render(request, 'add_employee.html', {
+        'organizations': organizations,
+        'departments': departments,
+        'job_titles': job_titles,
+        'pay_grades': pay_grades,
+        'supervisors': supervisors,
+    })
+

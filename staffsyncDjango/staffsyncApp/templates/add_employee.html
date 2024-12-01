@@ -2,11 +2,179 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Employee - StaffSync</title>
+    <style>
+        /* Global styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 24px;
+            color: #2e3b4e;
+        }
+
+        /* Form container */
+        form {
+            background-color: white;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+        }
+
+        label {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input[type="text"], input[type="date"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        /* Button */
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .back-button {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        @media screen and (max-width: 768px) {
+            form {
+                width: 90%;
+            }
+        }
+    </style>
 </head>
 <body>
-<h1>
-    hello
-</h1>
+<h1>Add Employee</h1>
+<form method="POST">
+    {% csrf_token %}
+
+    <!-- Employee Name -->
+    <label for="employee_name">Employee Name:</label>
+    <input type="text" id="employee_name" name="employee_name" placeholder="Enter employee name" required>
+
+    <!-- Date of Birth -->
+    <label for="dateofbirth">Date of Birth:</label>
+    <input type="date" id="dateofbirth" name="dateofbirth" required>
+
+    <!-- Gender -->
+    <label for="gender">Gender:</label>
+    <select id="gender" name="gender" required>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+        <option value="Prefer Not to Say">Prefer Not to Say</option>
+    </select>
+
+    <!-- Address -->
+    <label for="address">Address:</label>
+    <input type="text" id="address" name="address" placeholder="Enter address" required>
+
+    <label for="country">Country:</label>
+    <input type="text" id="country" name="country" placeholder="Enter country" required>
+
+    <!-- Marital Status -->
+    <label for="Maritalstatus">Marital Status:</label>
+    <select id="Maritalstatus" name="Maritalstatus" required>
+        <option value="Married">Married</option>
+        <option value="Unmarried">Unmarried</option>
+    </select>
+
+    <!-- Organization -->
+    <label for="Organizationid">Organization:</label>
+    <select id="Organizationid" name="Organizationid" required>
+        {% for org in organizations %}
+        <option value="{{ org.OrganizationID }}">{{ org.OrganizationLabel }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Department -->
+    <label for="Departmentid">Department:</label>
+    <select id="Departmentid" name="Departmentid" required>
+        {% for dept in departments %}
+        <option value="{{ dept.DepartmentID }}">{{ dept.DepartmentLabel }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Job Title -->
+    <label for="Jobtitleid">Job Title:</label>
+    <select id="Jobtitleid" name="Jobtitleid" required>
+        {% for job in job_titles %}
+        <option value="{{ job.JobTitleID }}">{{ job.JobTitleLabel }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Pay Grade -->
+    <label for="Paygradeid">Pay Grade:</label>
+    <select id="Paygradeid" name="Paygradeid" required>
+        {% for grade in pay_grades %}
+        <option value="{{ grade.PayGradeID }}">{{ grade.PayGradeLabel }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="Supervisorid">Supervisor:</label>
+    <select id="Supervisorid" name="Supervisorid" required>
+        {% for supervisor in supervisors %}
+        <option value="{{ supervisor.EmployeeID }}">{{ supervisor.EmployeeLabel }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Number of Leaves -->
+    <label for="number_of_leaves">Number of Leaves:</label>
+    <input type="number" id="number_of_leaves" name="number_of_leaves" placeholder="Enter number of leaves" required>
+
+    <button type="submit">Add Employee</button>
+</form>
 </body>
 </html>
