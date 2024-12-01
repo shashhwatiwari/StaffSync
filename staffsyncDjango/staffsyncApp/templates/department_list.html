@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modify Departments - StaffSync</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .add-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            text-align: center;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+            text-decoration: none; /* Remove underline */
+        }
+
+        .add-btn:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 90%;
+            max-width: 1000px;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .action-btns .btn {
+            display: inline-block;
+            padding: 8px 15px; /* Consistent size */
+            margin: 5px;
+            border-radius: 5px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .update-btn {
+            background-color: #4CAF50; /* Green for update */
+        }
+
+        .update-btn:hover {
+            background-color: #45a049;
+        }
+
+        .delete-btn {
+            background-color: #f44336; /* Red for delete */
+        }
+
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 50%;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .modal-header .close {
+            font-size: 24px;
+            color: #aaa;
+            cursor: pointer;
+        }
+
+        .modal-header .close:hover {
+            color: black;
+        }
+
+        .btn {
+            margin: 10px 0;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #45a049;
+        }
+
+        .btn-secondary {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .btn-secondary:hover {
+            background-color: #ccc;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+<h1>Modify Departments</h1>
+
+<!-- Add Department Button -->
+<a href="#" class="add-btn" onclick="openAddModal()">Add Department</a>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Department Name</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for department in departments %}
+    <tr>
+        <td>{{ department.DepartmentID }}</td>
+        <td>{{ department.DepartmentName }}</td>
+        <td class="action-btns">
+            <a href="#" class="btn update-btn" onclick="openEditModal({{ department.DepartmentID }}, '{{ department.DepartmentName }}')">Update</a>
+            <form method="POST" action="{% url 'delete_department' department.DepartmentID %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn delete-btn"
+                        onclick="return confirm('Are you sure you want to delete this department?')">
+                    Delete
+                </button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<!-- Modals (Add and Edit) -->
+<div id="editDepartmentModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span>Edit Department</span>
+            <span class="close" onclick="closeModal('editDepartmentModal')">&times;</span>
+        </div>
+        <form id="editDepartmentForm" method="POST">
+            {% csrf_token %}
+            <label for="editDepartmentName">Department Name:</label>
+            <input type="text" id="editDepartmentName" name="department_name" required>
+            <input type="hidden" id="editDepartmentID" name="department_id">
+            <div style="margin-top: 20px;">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('editDepartmentModal')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="addDepartmentModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span>Add Department</span>
+            <span class="close" onclick="closeModal('addDepartmentModal')">&times;</span>
+        </div>
+        <form id="addDepartmentForm" method="POST" action="{% url 'add_department' %}">
+            {% csrf_token %}
+            <label for="addDepartmentName">Department Name:</label>
+            <input type="text" id="addDepartmentName" name="department_name" required>
+            <div style="margin-top: 20px;">
+                <button type="submit" class="btn btn-primary">Add Department</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('addDepartmentModal')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openEditModal(departmentID, departmentName) {
+        const modal = document.getElementById('editDepartmentModal');
+        modal.classList.add('show');
+        document.getElementById('editDepartmentName').value = departmentName;
+        document.getElementById('editDepartmentID').value = departmentID;
+        document.getElementById('editDepartmentForm').action = `/edit_department/${departmentID}/`;
+    }
+
+    function openAddModal() {
+        const modal = document.getElementById('addDepartmentModal');
+        modal.classList.add('show');
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.remove('show');
+    }
+
+    window.onclick = function (event) {
+        const addModal = document.getElementById('addDepartmentModal');
+        const editModal = document.getElementById('editDepartmentModal');
+        if (event.target === addModal) closeModal('addDepartmentModal');
+        if (event.target === editModal) closeModal('editDepartmentModal');
+    };
+
+    window.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            closeModal('addDepartmentModal');
+            closeModal('editDepartmentModal');
+        }
+    });
+</script>
+</body>
+</html>
