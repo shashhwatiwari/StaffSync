@@ -163,16 +163,17 @@
         {% endfor %}
     </select>
 
+    <!-- Supervisor -->
     <label for="Supervisorid">Supervisor:</label>
-    <select id="Supervisorid" name="Supervisorid" required>
+    <select id="Supervisorid" name="Supervisorid">
+        <option value="">None</option> <!-- Empty value for None -->
         {% for supervisor in supervisors %}
         <option value="{{ supervisor.EmployeeID }}">{{ supervisor.EmployeeLabel }}</option>
         {% endfor %}
     </select>
 
-    <!-- Number of Leaves -->
     <label for="number_of_leaves">Number of Leaves:</label>
-    <input type="number" id="number_of_leaves" name="number_of_leaves" placeholder="Enter number of leaves" required>
+    <input type="number" id="number_of_leaves" name="number_of_leaves" placeholder="Enter number of leaves" value="20">
 
     <button type="submit">Add Employee</button>
 </form>

@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect
 from .db_utils import execute_query, call_procedure, OutParam
 from django.contrib import messages
 
+from .models import Employee
+
+
 # login method
 def login_view(request):
     if request.method == 'POST':
@@ -480,7 +483,11 @@ def add_employee(request):
     organizations = execute_query(
         "SELECT OrganizationID, CONCAT(OrganizationID, ': ', Name) AS OrganizationLabel FROM Organization")
     supervisors = execute_query(
-        "SELECT EmployeeID, CONCAT(EmployeeID, ': ', EmployeeName) AS EmployeeLabel FROM Employee"
+         """
+        SELECT NULL AS EmployeeID, 'None' AS EmployeeLabel
+        UNION ALL
+        SELECT EmployeeID, CONCAT(EmployeeID, ': ', EmployeeName) AS EmployeeLabel
+        FROM Employee"""
     )
 
     if request.method == 'POST':
@@ -495,7 +502,14 @@ def add_employee(request):
         job_title = request.POST.get('Jobtitleid')
         paygrade = request.POST.get('Paygradeid')
         supervisor = request.POST.get('Supervisorid')
-        number_of_leaves = request.POST.get('number_of_leaves', 20)  # Default to 20 if not provided
+        number_of_leaves = request.POST.get('number_of_leaves')  # Default to 20 if not provided
+
+        # Handle "None" supervisor
+        if not supervisor:  # Convert empty string to None for SQL NULL
+            supervisor = None
+
+        if not number_of_leaves:
+            number_of_leaves = 20
 
         out_param = OutParam()  # Ensure OutParam is properly defined elsewhere
         try:
