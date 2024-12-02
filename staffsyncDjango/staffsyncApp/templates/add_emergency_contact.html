@@ -55,25 +55,43 @@
         .form-container button:hover {
             background-color: #45a049;
         }
-        .error-message, .success-message {
-            text-align: center;
-            font-size: 14px;
-            margin-top: 10px;
-            color: #d9534f; /* Error: Red */
+
+        /* Back Button Style */
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
-        .success-message {
-            color: #5cb85c; /* Success: Green */
+
+        .back-btn:hover {
+            background-color: #45a049;
         }
+
+        .back-btn i {
+            font-size: 18px;
+        }
+
     </style>
 </head>
 <body>
+    <!-- Back Button -->
+    <a href="{% url 'employee-emergencycontact' %}" class="back-btn">
+        <i>&larr;</i> Back
+    </a>
     <h1>Add Emergency Contact</h1>
     <div class="form-container">
-        {% if messages %}
-        {% for message in messages %}
-        <div class="{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-        {% endif %}
         <form method="POST" action="{% url 'add-emergency-contact' %}">
             {% csrf_token %}
             <label for="contact_name">Contact Name:</label>

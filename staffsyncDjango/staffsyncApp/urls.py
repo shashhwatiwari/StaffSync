@@ -3,6 +3,8 @@ from . import views
 
 urlpatterns = [
     path('', views.login_view, name='staffsync-login' ),
+    path('logout/', views.logout_view, name='logout'),
+
     path('hr/', views.hr_home, name='hr-home'),
     path('update-employee/', views.update_employeeHR, name='update_employee'),
 
@@ -45,5 +47,12 @@ urlpatterns = [
     path('add_paygrade/', views.add_paygrade, name='add_paygrade'),
     path('edit_paygrade/<int:paygrade_id>/', views.edit_paygrade, name='edit_paygrade'),
     path('delete_paygrade/<int:paygrade_id>/', views.delete_paygrade, name='delete_paygrade'),
+
+    path('user-accounts/', views.user_account_list, name='user_account_list'),
+    path('add-user-account/', views.add_user_account, name='add_user_account'),
+    path('edit-user-account/<int:user_account_id>/', views.edit_user_account, name='edit_user_account'),
+    path('delete-user-account/<int:user_account_id>/', views.delete_user_account, name='delete_user_account'),
+
+
 
 ]

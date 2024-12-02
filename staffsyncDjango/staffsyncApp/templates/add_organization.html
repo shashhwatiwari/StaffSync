@@ -56,22 +56,33 @@
         button:hover {
             background-color: #45a049;
         }
+        /* Consistent styling for Cancel button */
         .cancel-btn {
             background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
         }
         .cancel-btn:hover {
             background-color: #d32f2f;
         }
-        .error-message, .success-message {
+        /* Style for the Back to Organization List link */
+        .back-btn {
+            display: block;
             text-align: center;
-            font-size: 14px;
-            margin-bottom: 20px;
+            font-size: 16px;
+            color: green;
+            margin-top: 20px;
+            text-decoration: none;
         }
-        .error-message {
-            color: #f44336;
-        }
-        .success-message {
-            color: #4CAF50;
+        .back-btn:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -96,9 +107,14 @@
         </div>
         <div class="form-actions">
             <button type="submit">Add Organization</button>
-            <a href="{% url 'organization_list' %}" class="cancel-btn" style="text-decoration: none; padding: 10px 20px; display: inline-block;">Cancel</a>
+            <!-- Updated Cancel button -->
+            <a href="{% url 'organization_list' %}" class="cancel-btn">Cancel</a>
         </div>
     </form>
+
+    <!-- Back to Organization List Link -->
+    <a href="{% url 'organization_list' %}" class="back-btn">Back to Organization List</a>
 </div>
+
 </body>
 </html>

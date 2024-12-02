@@ -168,12 +168,30 @@
         .modal-content button:hover {
             background-color: #1abc9c;
         }
+
+        .logout-btn {
+        background-color: #e74c3c;
+        color: white;
+        padding: 8px 15px;
+        font-size: 0.9em;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-decoration: none;
+        }
+
+    .logout-btn:hover {
+        background-color: #c0392b;
+        }
     </style>
 </head>
 <body>
     <header>
-        <div class="header-container">
+    <div class="header-container">
             <a href="#" class="logo">StaffSync</a>
+            <div class="nav-links">
+                <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+            </div>
         </div>
     </header>
     <h1>HR Dashboard</h1>

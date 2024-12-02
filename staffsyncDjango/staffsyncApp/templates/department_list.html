@@ -19,6 +19,36 @@
             margin: 20px 0;
         }
 
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .back-btn:hover {
+            background-color: #45a049;
+        }
+        .back-arrow {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(135deg);
+            margin-right: 5px;
+        }
+
         .add-btn {
             position: absolute;
             top: 20px;
@@ -190,6 +220,11 @@
 </head>
 <body>
 <h1>Modify Departments</h1>
+
+<!-- Back Button -->
+<a href="{% url 'admin-home' %}" class="back-btn">
+    <span class="back-arrow"></span> Back
+</a>
 
 <!-- Add Department Button -->
 <a href="#" class="add-btn" onclick="openAddModal()">Add Department</a>

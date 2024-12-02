@@ -55,6 +55,33 @@
             background-color: #f1f1f1;
         }
 
+        /* Back Button Style */
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-btn:hover {
+            background-color: #45a049;
+        }
+
+        .back-btn i {
+            font-size: 18px;
+        }
+
         .back-button {
             margin-top: 20px;
             background-color: #4CAF50;
@@ -73,6 +100,11 @@
     </style>
 </head>
 <body>
+    <!-- Back Button -->
+    <a href="{% url 'employee-home' %}" class="back-btn">
+        <i>&larr;</i> Back
+    </a>
+
     <h1>Leave History</h1>
     <div class="table-container">
         <table>

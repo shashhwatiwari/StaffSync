@@ -1,8 +1,10 @@
+from django.contrib.auth import logout
+from django.contrib.auth.hashers import make_password
 from django.shortcuts import render, redirect
 from .db_utils import execute_query, call_procedure, OutParam
 from django.contrib import messages
 
-from .models import Employee
+#from .models import Employee
 
 
 # login method
@@ -463,8 +465,6 @@ def delete_employee(request, employee_id):
 
             # Optionally, you can add a success message
             messages.success(request, 'Employee deleted successfully.')
-        except Employee.DoesNotExist:
-            messages.error(request, 'Employee not found.')
         except Exception as e:
             messages.error(request, f'Error deleting employee: {str(e)}')
 
@@ -482,13 +482,9 @@ def add_employee(request):
         "SELECT PayGradeID, CONCAT(PayGradeID, ': ', PayGradeName) AS PayGradeLabel FROM PayGrade")
     organizations = execute_query(
         "SELECT OrganizationID, CONCAT(OrganizationID, ': ', Name) AS OrganizationLabel FROM Organization")
-    supervisors = execute_query(
-        """
-       SELECT NULL AS EmployeeID, 'None' AS EmployeeLabel
-       UNION ALL
-       SELECT EmployeeID, CONCAT(EmployeeID, ': ', EmployeeName) AS EmployeeLabel
-       FROM Employee"""
-    )
+    supervisors = execute_query("""SELECT NULL AS EmployeeID, 'None' AS EmployeeLabel
+                                   UNION ALL
+                                   SELECT EmployeeID, CONCAT(EmployeeID, ': ', EmployeeName) AS EmployeeLabel FROM Employee""")
 
     if request.method == 'POST':
         employee_name = request.POST.get('employee_name')
@@ -738,3 +734,84 @@ def delete_paygrade(request, paygrade_id):
             messages.error(request, f'Error deleting PayGrade: {str(e)}')
 
     return redirect('paygrade_list')
+
+
+def user_account_list(request):
+    user_account_query = "SELECT * FROM UserAccount"
+    user_accounts = execute_query(user_account_query)
+    context = {'user_accounts': user_accounts}
+    return render(request, 'user_account_list.html', context)
+
+
+def add_user_account(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        employee_id = request.POST.get('employee_id')
+        user_role = request.POST.get('user_role')
+
+        # Hash the password before storing
+        password_hash = make_password(password)
+
+        try:
+            call_procedure('CreateUserAccount',
+                           [username, email, password_hash, employee_id, user_role])
+            messages.success(request, 'User account added successfully.')
+        except Exception as e:
+            messages.error(request, f'Error adding user account: {str(e)}')
+
+        return redirect('user_account_list')
+
+    return render(request, 'add_user_account.html')
+
+
+def edit_user_account(request, user_account_id):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        employee_id = request.POST.get('employee_id')
+        user_role = request.POST.get('user_role')
+
+        # Only update password if a new one is provided
+        if password:
+            password_hash = make_password(password)
+        else:
+            # Fetch current password hash
+            current_user = \
+            execute_query("SELECT PasswordHash FROM UserAccount WHERE UserAccountID = %s",
+                          [user_account_id])[0]
+            password_hash = current_user['PasswordHash']
+
+        try:
+            call_procedure('UpdateUserAccount',
+                           [user_account_id, username, email, password_hash, employee_id,
+                            user_role])
+            messages.success(request, 'User account updated successfully.')
+        except Exception as e:
+            messages.error(request, f'Error updating user account: {str(e)}')
+
+        return redirect('user_account_list')
+
+    user_account = \
+    execute_query("SELECT * FROM UserAccount WHERE UserAccountID = %s", [user_account_id])[0]
+    return render(request, 'edit_user_account.html', {'user_account': user_account})
+
+
+def delete_user_account(request, user_account_id):
+    if request.method == 'POST':
+        try:
+            call_procedure('delete_UserAccount', [user_account_id])
+            messages.success(request, 'User account deleted successfully.')
+        except Exception as e:
+            messages.error(request, f'Error deleting user account: {str(e)}')
+
+    return redirect('user_account_list')
+
+
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, "You have been successfully logged out.")
+    return redirect('staffsync-login')
