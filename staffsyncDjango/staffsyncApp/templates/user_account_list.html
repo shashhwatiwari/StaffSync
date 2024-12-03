@@ -297,7 +297,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <span>Edit User Account</span>
-            <span class="close" onclick="closeUpdateModal()">&times;</span>
+            <span class="close" onclick="closeAddModal2()">&times;</span>
         </div>
         <form id="editUserAccountForm" method="POST" action="" onsubmit="updateFormAction()">
             {% csrf_token %}
@@ -346,10 +346,23 @@
         document.getElementById("addUserAccountModal").classList.add("show");
     }
 
-    // Function to close the modal
+    //Function to close the modal
     function closeAddModal() {
         document.getElementById("addUserAccountModal").classList.remove("show");
     }
+
+    // Function to close the Edit User Account modal
+    function closeModal() {
+    document.getElementById("editUserAccountModal").style.display = "none";
+    document.getElementById("editUserAccountModal").classList.remove("show");
+    }
+
+    // Function to close the Add User Account modal
+    function closeAddModal2() {
+    document.getElementById("addUserAccountModal").style.display = "none";
+    document.getElementById("addUserAccountModal").classList.remove("show");
+}
+
 
 </script>
 

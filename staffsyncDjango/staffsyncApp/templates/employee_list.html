@@ -149,6 +149,7 @@
         <th>Employee Name</th>
         <th>Department</th>
         <th>Job Title</th>
+        <th>Username</th>
         <th>Actions</th>
     </tr>
     </thead>
@@ -159,6 +160,7 @@
         <td>{{ employee.EmployeeName }}</td>
         <td>{{ employee.DepartmentID }}</td>
         <td>{{ employee.JobTitleID }}</td>
+        <td>{{ employee.Username }}</td>
         <td class="action-btns">
             <a href="{% url 'edit-employee' employee.EmployeeID %}" class="update-btn">Update</a>
             <form method="POST" action="{% url 'employee-delete' employee.EmployeeID %}" style="display:inline;">
@@ -173,5 +175,7 @@
     {% endfor %}
     </tbody>
 </table>
+
 </body>
 </html>
+

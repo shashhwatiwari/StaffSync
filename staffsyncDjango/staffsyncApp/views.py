@@ -368,12 +368,23 @@ def admin_home(request):
 
 
 # Method to show the list of employees in the database currently when we click the modify employee button.
+# def employee_list(request):
+#     # Query to fetch all employees
+#     employee_query = """
+#     SELECT EmployeeID, EmployeeName, DepartmentID, JobTitleID, PayGradeID
+#     FROM Employee
+#     """
+#     employees = execute_query(employee_query)
+#
+#     context = {
+#         'employees': employees
+#     }
+#     return render(request, 'employee_list.html', context)
 def employee_list(request):
-    # Query to fetch all employees
-    employee_query = """
-    SELECT EmployeeID, EmployeeName, DepartmentID, JobTitleID, PayGradeID
-    FROM Employee
-    """
+    # Query to fetch all employees with their usernames
+    employee_query = """SELECT e.EmployeeID, e.EmployeeName, e.DepartmentID, e.JobTitleID, e.PayGradeID, ua.Username
+    FROM Employee e
+    LEFT JOIN UserAccount ua ON e.EmployeeID = ua.EmployeeID"""
     employees = execute_query(employee_query)
 
     context = {
