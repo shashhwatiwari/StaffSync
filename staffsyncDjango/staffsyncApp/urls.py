@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.login_view, name='staffsync-login' ),
+    path('', views.login_view, name='staffsync-login'),
     path('logout/', views.logout_view, name='logout'),
 
     path('hr/', views.hr_home, name='hr-home'),
@@ -20,7 +20,6 @@ urlpatterns = [
     path('apply-for-leave/', views.log_leave, name='apply-for-leave'),
     path('view-leave/', views.view_employee_leaves, name='view-leave'),
 
-
     path('admin_home/', views.admin_home, name='admin-home'),
     path('employee-list/', views.employee_list, name='employee_list'),
     path('edit_employee/<int:employee_id>/', views.edit_employee, name='edit-employee'),
@@ -37,7 +36,6 @@ urlpatterns = [
     path('edit_organization/<int:organization_id>/', views.edit_organization, name='edit-organization'),
     path('delete_organization/<int:organization_id>/', views.delete_organization, name='delete-organization'),
 
-
     path('department_list/', views.department_list, name='department_list'),
     path('edit_department/<int:department_id>/', views.edit_department, name='edit_department'),
     path('delete_department/<int:department_id>/', views.delete_department, name='delete_department'),
@@ -48,11 +46,9 @@ urlpatterns = [
     path('edit_paygrade/<int:paygrade_id>/', views.edit_paygrade, name='edit_paygrade'),
     path('delete_paygrade/<int:paygrade_id>/', views.delete_paygrade, name='delete_paygrade'),
 
-    path('user-accounts/', views.user_account_list, name='user_account_list'),
-    path('add-user-account/', views.add_user_account, name='add_user_account'),
-    path('edit-user-account/<int:user_account_id>/', views.edit_user_account, name='edit_user_account'),
-    path('delete-user-account/<int:user_account_id>/', views.delete_user_account, name='delete_user_account'),
-
-
+    path('user_account_list/', views.user_account_list, name='user_account_list'),
+    path('edit_user_account/<int:useraccount_id>/', views.edit_user_account, name='edit_user_account'),
+    path('delete_user_account/<int:useraccount_id>/', views.delete_user_account, name='delete_user_account'),
+    path('add_user_account/', views.add_user_account, name='add_user_account'),
 
 ]

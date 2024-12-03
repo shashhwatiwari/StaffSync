@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Account Management - StaffSync</title>
+    <title>Modify UserAccount - StaffSync</title>
     <style>
         /* Global Styles */
         body {
@@ -65,7 +65,7 @@
             font-size: 16px;
             font-weight: bold;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
-            text-decoration: none;
+            text-decoration: none; /* Remove underline */
         }
 
         .add-btn:hover {
@@ -104,7 +104,7 @@
 
         .action-btns .btn {
             display: inline-block;
-            padding: 8px 15px;
+            padding: 8px 15px; /* Consistent size */
             margin: 5px;
             border-radius: 5px;
             color: white;
@@ -114,7 +114,7 @@
         }
 
         .update-btn {
-            background-color: #4CAF50;
+            background-color: #4CAF50; /* Green for update */
         }
 
         .update-btn:hover {
@@ -122,7 +122,7 @@
         }
 
         .delete-btn {
-            background-color: #f44336;
+            background-color: #f44336; /* Red for delete */
         }
 
         .delete-btn:hover {
@@ -212,25 +212,16 @@
                 transform: scale(1);
             }
         }
-
-        @media (max-width: 768px) {
-            .modal-content {
-                width: 90%;
-            }
-        }
     </style>
 </head>
 <body>
-<h1>User Account Management</h1>
+<h1>Modify UserAccounts</h1>
 
 <!-- Back Button -->
 <a href="{% url 'admin-home' %}" class="back-btn">
     <span class="back-arrow"></span> Back
 </a>
-
-<!-- Add User Account Button -->
 <a href="#" class="add-btn" onclick="openAddModal()">Add User Account</a>
-
 <table>
     <thead>
     <tr>
@@ -243,21 +234,26 @@
     </tr>
     </thead>
     <tbody>
-    {% for user_account in user_accounts %}
+    {% for useraccount in useraccounts %}
     <tr>
-        <td>{{ user_account.UserID }}</td>
-        <td>{{ user_account.Username }}</td>
-        <td>{{ user_account.Email }}</td>
-        <td>{{ user_account.EmployeeID }}</td>
-        <td>{{ user_account.User_Role }}</td>
+        <td>{{ useraccount.UserID }}</td>
+        <td>{{ useraccount.Username }}</td>
+        <td>{{ useraccount.Email }}</td>
+        <td>{{ useraccount.EmployeeID }}</td>
+        <td>{{ useraccount.User_Role }}</td>
         <td class="action-btns">
-            <a href="#" class="btn update-btn" onclick="openEditModal({{ user_account.UserID }}, '{{ user_account.Username }}', '{{ user_account.Email }}', '{{ user_account.EmployeeID }}', '{{ user_account.User_Role }}')">Update</a>
-            <form method="POST" action="{% url 'delete_user_account' user_account_id=user_account.UserID %}" style="display:inline;">
+            <button class="btn update-btn"
+                    onclick="openModal({{ useraccount.UserID }}, '{{ useraccount.Username }}', '{{ useraccount.Email }}', '{{ useraccount.EmployeeID }}', '{{ useraccount.User_Role }}')">
+                Update
+            </button>
+            <!-- Delete Button -->
+            <a href="#" class="btn delete-btn" onclick="event.preventDefault();
+            if(confirm('Are you sure you want to delete this user account?')) {
+                document.getElementById('delete-form-{{ useraccount.UserID }}').submit(); }">Delete</a>
+            <!-- Hidden Form for Deleting PayGrade -->
+            <form id="delete-form-{{ useraccount.UserID }}" action="{% url 'delete_user_account' useraccount.UserID %}"
+                  method="POST" style="display: none;">
                 {% csrf_token %}
-                <button type="submit" class="btn delete-btn"
-                        onclick="return confirm('Are you sure you want to delete this user account?')">
-                    Delete
-                </button>
             </form>
         </td>
     </tr>
@@ -265,14 +261,45 @@
     </tbody>
 </table>
 
-<!-- Modals (Add and Edit) -->
+<!-- Modal for Adding User -->
+<div id="addUserAccountModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span>Add User Account</span>
+            <span class="close" onclick="closeAddModal()">&times;</span>
+        </div>
+        <form action="{% url 'add_user_account' %}" method="POST">
+            {% csrf_token %}
+            <label for="addUsername">Username:</label>
+            <input type="text" id="addUsername" name="username" required>
+            <label for="addEmail">Email:</label>
+            <input type="email" id="addEmail" name="email" required>
+            <label for="addEmployeeID">Employee ID:</label>
+            <input type="text" id="addEmployeeID" name="employee_id" required>
+            <label for="addUserRole">User Role:</label>
+            <select id="addUserRole" name="user_role" required>
+                <option value="HR">HR</option>
+                <option value="Regular">Regular</option>
+                <option value="Admin">Admin</option>
+            </select>
+            <label for="addPassword">Password:</label>
+            <input type="password" id="addPassword" name="password" required>
+            <div style="margin-top: 20px;">
+                <button type="submit" class="btn btn-primary">Add User</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal for Edit -->
 <div id="editUserAccountModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
             <span>Edit User Account</span>
-            <span class="close" onclick="closeModal('editUserAccountModal')">&times;</span>
+            <span class="close" onclick="closeUpdateModal()">&times;</span>
         </div>
-        <form id="editUserAccountForm" method="POST" action="{% url 'edit_user_account' user_account.UserID %}">
+        <form id="editUserAccountForm" method="POST" action="" onsubmit="updateFormAction()">
             {% csrf_token %}
             <label for="editUsername">Username:</label>
             <input type="text" id="editUsername" name="username" required>
@@ -289,58 +316,42 @@
             <input type="hidden" id="editUserID" name="user_account_id">
             <div style="margin-top: 20px;">
                 <button type="submit" class="btn btn-primary">Save Changes</button>
-                <button type="button" class="btn btn-secondary" onclick="closeModal('editUserAccountModal')">Cancel</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div id="addUserAccountModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <span>Add User Account</span>
-            <span class="close" onclick="closeModal('addUserAccountModal')">&times;</span>
-        </div>
-        <form method="POST" action="{% url 'add_user_account' %}">
-            {% csrf_token %}
-            <label for="addUsername">Username:</label>
-            <input type="text" id="addUsername" name="username" required>
-            <label for="addEmail">Email:</label>
-            <input type="email" id="addEmail" name="email" required>
-            <label for="addEmployeeID">Employee ID:</label>
-            <input type="text" id="addEmployeeID" name="employee_id" required>
-            <label for="addUserRole">User Role:</label>
-            <select id="addUserRole" name="user_role" required>
-                <option value="HR">HR</option>
-                <option value="Regular">Regular</option>
-                <option value="Admin">Admin</option>
-            </select>
-            <div style="margin-top: 20px;">
-                <button type="submit" class="btn btn-primary">Add User Account</button>
-                <button type="button" class="btn btn-secondary" onclick="closeModal('addUserAccountModal')">Cancel</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-    function openEditModal(id, username, email, employeeId, userRole) {
-        document.getElementById('editUserID').value = id;
-        document.getElementById('editUsername').value = username;
-        document.getElementById('editEmail').value = email;
-        document.getElementById('editEmployeeID').value = employeeId;
-        document.getElementById('editUserRole').value = userRole;
-        document.getElementById('editUserAccountModal').classList.add('show');
+    // Function to open the modal and populate the form fields
+    function openModal(userId, username, email, employeeId, userRole) {
+        document.getElementById("editUserAccountModal").style.display = "flex";
+        document.getElementById("editUserID").value = userId;
+        document.getElementById("editUsername").value = username;
+        document.getElementById("editEmail").value = email;
+        document.getElementById("editEmployeeID").value = employeeId;
+        document.getElementById("editUserRole").value = userRole;
+        // Dynamically update form action URL for the update process
+        document.getElementById("editUserAccountForm").action = `/edit_user_account/${userId}/`;
+        document.getElementById("editUserAccountForm").classList.add("show");
     }
 
+    // Function to close the modal
+    function closeUpdateModal() {
+        document.getElementById("editUserAccountModal").classList.remove("show");
+    }
+
+    // Function to open the modal
     function openAddModal() {
-        document.getElementById('addUserAccountModal').classList.add('show');
+        document.getElementById("addUserAccountModal").classList.add("show");
     }
 
-
-    function closeModal(modalId) {
-        document.getElementById(modalId).classList.remove('show');
+    // Function to close the modal
+    function closeAddModal() {
+        document.getElementById("addUserAccountModal").classList.remove("show");
     }
+
 </script>
+
 </body>
 </html>
