@@ -4,7 +4,8 @@ from django.shortcuts import render, redirect
 from .db_utils import execute_query, call_procedure, OutParam
 from django.contrib import messages
 
-#from .models import Employee
+
+# from .models import Employee
 
 
 # login method
@@ -735,11 +736,12 @@ def delete_paygrade(request, paygrade_id):
 
     return redirect('paygrade_list')
 
+# -------------------------UserAccount-----------------------------------------
 
 def user_account_list(request):
     user_account_query = "SELECT * FROM UserAccount"
-    user_accounts = execute_query(user_account_query)
-    context = {'user_accounts': user_accounts}
+    useraccounts = execute_query(user_account_query)
+    context = {'useraccounts': useraccounts}
     return render(request, 'user_account_list.html', context)
 
 
@@ -761,13 +763,15 @@ def add_user_account(request):
         except Exception as e:
             messages.error(request, f'Error adding user account: {str(e)}')
 
+        # No need to redirect, just close the modal (handled by JS)
         return redirect('user_account_list')
 
-    return render(request, 'add_user_account.html')
+    return render(request, 'user_account_list.html')
 
 
-def edit_user_account(request, user_account_id):
+def edit_user_account(request, useraccount_id):
     if request.method == 'POST':
+        # Get the form data
         username = request.POST.get('username')
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -776,40 +780,40 @@ def edit_user_account(request, user_account_id):
 
         # Only update password if a new one is provided
         if password:
-            password_hash = make_password(password)
+            password_hash = make_password(password)  # Hash new password
         else:
-            # Fetch current password hash
-            current_user = \
-            execute_query("SELECT PasswordHash FROM UserAccount WHERE UserAccountID = %s",
-                          [user_account_id])[0]
+            # Fetch current password hash if no password is provided
+            current_user = execute_query("SELECT PasswordHash FROM UserAccount WHERE UserID = %s", [useraccount_id])[0]
             password_hash = current_user['PasswordHash']
 
+        # Attempt to update the user account using a stored procedure or query
         try:
-            call_procedure('UpdateUserAccount',
-                           [user_account_id, username, email, password_hash, employee_id,
-                            user_role])
+            call_procedure(
+                'UpdateUserAccount',
+                [useraccount_id, username, email, password_hash, employee_id, user_role]
+            )
             messages.success(request, 'User account updated successfully.')
         except Exception as e:
             messages.error(request, f'Error updating user account: {str(e)}')
 
+        # Return back to the same page after processing the form
         return redirect('user_account_list')
 
-    user_account = \
-    execute_query("SELECT * FROM UserAccount WHERE UserAccountID = %s", [user_account_id])[0]
-    return render(request, 'edit_user_account.html', {'user_account': user_account})
+    useraccount = execute_query("SELECT * FROM UserAccount WHERE UserID = %s", [useraccount_id])[0]
+    return render(request, 'user_account_list.html', {'useraccount': useraccount})
 
 
-def delete_user_account(request, user_account_id):
+def delete_user_account(request, useraccount_id):
     if request.method == 'POST':
         try:
-            call_procedure('delete_UserAccount', [user_account_id])
+            call_procedure('DeleteUserAccount', [useraccount_id])
             messages.success(request, 'User account deleted successfully.')
         except Exception as e:
             messages.error(request, f'Error deleting user account: {str(e)}')
 
     return redirect('user_account_list')
 
-
+# -------------------------Logout-----------------------------------------
 
 def logout_view(request):
     logout(request)
