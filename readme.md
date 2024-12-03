@@ -1,6 +1,9 @@
 # StaffSync - CS5200 Project
 
-An employee management system that involves the 
+An employee management system that involves CRUD operations on different tables. The database 
+contains 10 tables and procedures/triggers relevant for those tables. The application is made as a 
+web-app where a user can login. Post logging in the user is taken to their concerned dashboard that
+has the intuitive buttons enabling them to carry out operations that they are allowed to do.
 
 ## Prerequisites
 
@@ -44,7 +47,7 @@ Django: https://www.djangoproject.com/
 5. If not already created, import the provided SQL dump file to set up `StaffSync` database being used in this project: <br>
   `mysql -u <username> -p < StaffSyncDump.sql`
 <br>
-    Replace `<username>` with your MySQL username. 
+    Replace <username> with your MySQL username. 
 
 
 6. Set up the environment variables : 
