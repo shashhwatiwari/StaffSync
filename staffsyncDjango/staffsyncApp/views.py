@@ -368,18 +368,6 @@ def admin_home(request):
 
 
 # Method to show the list of employees in the database currently when we click the modify employee button.
-# def employee_list(request):
-#     # Query to fetch all employees
-#     employee_query = """
-#     SELECT EmployeeID, EmployeeName, DepartmentID, JobTitleID, PayGradeID
-#     FROM Employee
-#     """
-#     employees = execute_query(employee_query)
-#
-#     context = {
-#         'employees': employees
-#     }
-#     return render(request, 'employee_list.html', context)
 def employee_list(request):
     # Query to fetch all employees with their usernames
     employee_query = """SELECT e.EmployeeID, e.EmployeeName, e.DepartmentID, e.JobTitleID, e.PayGradeID, ua.Username
@@ -393,13 +381,12 @@ def employee_list(request):
     return render(request, 'employee_list.html', context)
 
 
+
 # Method to edit the employee details.
 def edit_employee(request, employee_id):
     if request.method == 'POST':
-        # Fetch current employee data
         current_employee_data = call_procedure('EmployeeDetailsByID', [employee_id])[0]
 
-        # Prepare updated data, only including changed fields
         updated_data = {
             'EmployeeID': employee_id,
             'EmployeeName': current_employee_data['EmployeeName'],
@@ -407,27 +394,21 @@ def edit_employee(request, employee_id):
             'Country': current_employee_data['Country'],
             'DateOfBirth': current_employee_data['DateOfBirth'],
             'Gender': request.POST.get('gender', current_employee_data['Gender']),
-            'MaritalStatus': request.POST.get('Maritalstatus', current_employee_data['MaritalStatus']),
+            'MaritalStatus': request.POST.get('Maritalstatus',
+                                              current_employee_data['MaritalStatus']),
             'DepartmentID': request.POST.get('Departmentid', current_employee_data['DepartmentID']),
             'JobTitleID': request.POST.get('Jobtitleid', current_employee_data['JobTitleID']),
             'PayGradeID': request.POST.get('Paygradeid', current_employee_data['PayGradeID']),
-            'OrganizationID': request.POST.get('Organizationid', current_employee_data['OrganizationID']),
+            'OrganizationID': request.POST.get('Organizationid',
+                                               current_employee_data['OrganizationID']),
             'SupervisorID': request.POST.get('Supervisorid', current_employee_data['SupervisorID']),
-            'NumberOfLeaves': request.POST.get('number_of_leaves', current_employee_data['NumberOfLeaves'])
+            'NumberOfLeaves': request.POST.get('number_of_leaves',
+                                               current_employee_data['NumberOfLeaves'])
         }
 
-        # Filter out unchanged fields
-        updated_fields = {k: v for k, v in updated_data.items() if str(v) != str(current_employee_data.get(k))}
-
-        if updated_fields:
+        if any(str(updated_data[k]) != str(current_employee_data.get(k)) for k in updated_data):
             try:
-                # Prepare the UPDATE query
-                set_clause = ', '.join([f"{k} = %s" for k in updated_fields.keys()])
-                query = f"UPDATE Employee SET {set_clause} WHERE EmployeeID = %s"
-                params = list(updated_fields.values()) + [employee_id]
-
-                # Execute the UPDATE query
-                execute_query(query, params)
+                call_procedure('update_employee', list(updated_data.values()))
                 messages.success(request, 'Employee updated successfully.')
             except Exception as e:
                 messages.error(request, f'Error updating employee: {str(e)}')
@@ -439,7 +420,7 @@ def edit_employee(request, employee_id):
     # Fetch employee details for GET request
     employee_details = call_procedure('EmployeeDetailsByID', [employee_id])[0]
 
-    # Fetch additional data for dropdowns
+    # to display data for drop-downs
     departments = execute_query(
         "SELECT DepartmentID, CONCAT(DepartmentID, ': ', DepartmentName) AS DepartmentLabel FROM Department")
     job_titles = execute_query(

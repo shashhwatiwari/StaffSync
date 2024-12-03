@@ -46,12 +46,12 @@ Django: https://www.djangoproject.com/
 
 5. If not already created, import the provided SQL dump file to set up `StaffSync` database being used in this project: <br>
   `mysql -u <username> -p < StaffSyncDump.sql`
-<br>
-    Replace <username> with your MySQL username. 
+
+    Replace "username" with your MySQL username. 
 
 
 6. Set up the environment variables : 
-    <br>
+
     **Replace** the 'DB_USER' and 'DB_PASSWORD' section with your respective user and password in the provided .env file  <br>
 
 
@@ -80,7 +80,7 @@ Start the development server: <br>
 2. Once you are through with importing the database through the database dump provided, follow the given steps to run the application.<br>
 
 
-3. Open Terminal, and navigate to the directory where the staffsyncDjango resides and run the local host server using the following command : <br>
+3. Open Terminal, and navigate to the directory - `staffsyncDjango`. Now, run the local host server using the following command : <br>
 `python manage.py runserver`
 
     The server should now be running and you would get the following result on terminal: <br>
