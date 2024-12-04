@@ -50,9 +50,15 @@ Django: https://www.djangoproject.com/
     Replace "username" with your MySQL username. 
 
 
-6. Set up the environment variables : 
+6. Set up the environment variables :
 
-    **Replace** the 'DB_USER' and 'DB_PASSWORD' section with your respective user and password in the provided .env file  <br>
+    i. Please refer to the .env.example file for database configuration settings. 
+    Create a .env file in the staffsyncDjango directory, then copy the content from .env.example 
+    into it. Update the DB_USER and DB_PASSWORD fields with your respective username and password
+
+    ii. Alternatively :
+    Create a new ".env" file in the staffsyncDjango directory and replace the 'DB_USER' and 
+    'DB_PASSWORD' section with your respective user and password in the provided  <br>
 
 
        DATABASE_NAME= StaffSync

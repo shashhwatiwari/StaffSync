@@ -3,9 +3,8 @@ from django.contrib.auth.hashers import make_password
 from django.shortcuts import render, redirect
 from .db_utils import execute_query, call_procedure, OutParam
 from django.contrib import messages
+from django.contrib.auth.hashers import check_password
 
-
-# from .models import Employee
 
 
 # login method
@@ -15,32 +14,59 @@ def login_view(request):
         password = request.POST['password']
         print(f"Login attempt: username={username}, password={password}")  # Debug print
 
-        query = "SELECT * FROM UserAccount WHERE Username = %s AND PasswordHash = %s"
-        user_data = execute_query(query, [username, password])
+        # Retrieve the user data from the database based on the username
+        query = "SELECT * FROM UserAccount WHERE Username = %s"
+        user_data = execute_query(query, [username])
         print(f"User data: {user_data}")  # Debug print
 
         if user_data:
             user = user_data[0]
-            request.session['user_id'] = user['UserID']
-            request.session['user_role'] = user['User_Role']
-            request.session['emp_id'] = user['EmployeeID']
 
-            if user['User_Role'] == 'HR':
-                print("Redirecting to HR home")  # Debug print
-                return redirect('hr-home')
-            elif user['User_Role'] == 'Admin':
-                print("Redirecting to ADMIN home")
-                return redirect('admin-home')
+
+            if user['EmployeeID'] == 7: # original admin id, password was entered manually through database.
+                is_valid_password = (password == user['PasswordHash'])
             else:
-                print("Redirecting to employee home")  # Debug print
-                return redirect('employee-home')
+                # checking hashed password for other users
+                is_valid_password = check_password(password, user['PasswordHash'])
+
+            if is_valid_password:
+                request.session['user_id'] = user['UserID']
+                request.session['user_role'] = user['User_Role']
+                request.session['emp_id'] = user['EmployeeID']
+
+                if user['User_Role'] == 'HR':
+                    print("Redirecting to HR home")  # Debug print
+                    return redirect('hr-home')
+                elif user['User_Role'] == 'Admin':
+                    print("Redirecting to ADMIN home")
+                    return redirect('admin-home')
+                else:
+                    print("Redirecting to employee home")  # Debug print
+                    return redirect('employee-home')
+            else:
+                print("Password mismatch")  # Debug print
+                # Pass error message to the template
+                return render(request, 'login.html', {'error': 'Invalid username or password.'})
+
         else:
-            print("Authentication failed")  # Debug print
+            print("User not found")  # Debug print
             # Pass error message to the template
             return render(request, 'login.html', {'error': 'Invalid username or password.'})
 
     # Render the login page without error for GET requests
     return render(request, 'login.html')
+
+
+
+# method to view the audit logs:
+def admin_home(request):
+    if 'user_id' not in request.session:
+        return redirect('login')
+    query = "SELECT * FROM AuditLog ORDER BY Timestamp DESC"  # You can add filtering or sorting as needed
+    auditlogs = execute_query(query)  # Assuming `execute_query` returns a list of rows
+
+    return render(request, 'admin-home.html', {'auditlogs': auditlogs})
+
 
 
 # method for HR page
@@ -57,15 +83,19 @@ def hr_home(request):
     org_result = execute_query(org_query, [logged_in_user_emp_id])
     organization_id = org_result[0]['OrganizationID'] if org_result else None
 
+    department_data = get_employee_distribution_by_department(int(organization_id))
+    pay_grade_data = get_employee_distribution_by_pay_grade(int(organization_id))
+
     # getting the employee data and filtering out the currently logged-in user details
     # since they should not be allowed to update their own JobTitles, Supervisors, or PayGrades
 
     employee_query = """
-    SELECT EmployeeID, EmployeeName, DateOfBirth, DepartmentID, JobTitleID, PayGradeID, SupervisorID
-    FROM Employee
-    WHERE EmployeeID != %s AND OrganizationID = %s
+    SELECT e.EmployeeID, e.EmployeeName, e.DateOfBirth, e.DepartmentID, e.JobTitleID, e.PayGradeID, e.SupervisorID
+FROM Employee e
+LEFT JOIN UserAccount ua ON e.EmployeeID = ua.EmployeeID
+WHERE e.EmployeeID != %s AND (ua.User_Role != 'Admin' OR ua.User_Role IS NULL)
     """
-    employees = execute_query(employee_query, [logged_in_user_emp_id, organization_id])
+    employees = execute_query(employee_query, [logged_in_user_emp_id])
 
     # getting the data to show in the drop-down filters while updating employee information for better readability
     job_titles = execute_query(
@@ -92,9 +122,19 @@ def hr_home(request):
         'job_titles': job_titles,
         'pay_grades': pay_grades,
         'supervisors': supervisors,
-        'departments': departments
+        'departments': departments,
+        'department_data': department_data,
+        'pay_grade_data': pay_grade_data
     }
     return render(request, 'hr-home.html', context)
+
+
+# View methods for analytics on HR dashboard
+def get_employee_distribution_by_department(organization_id):
+    return call_procedure("GetEmployeeDistributionByDepartment", [int(organization_id)])
+
+def get_employee_distribution_by_pay_grade(organization_id):
+    return call_procedure("GetEmployeeDistributionByPayGrade", [int(organization_id)])
 
 
 # Method for Regular Employees
@@ -122,8 +162,15 @@ def employee_home(request):
                   {'employee': employee_data[0] if employee_data else None})
 
 
+
+
+
+
+
 # -------------------------------------------------------------------------------------------------------------------------------------------------
 # CRUD Methods for Employee Dependents
+
+# ------------------------------------ Dependents -------------------------------------------------
 
 # Method to view employee dependents
 def view_dependents(request):
@@ -198,8 +245,8 @@ def delete_dependent(request, dependent_id):
     return redirect('employee-dependent')
 
 
-# -------------------------------------------------------------------------------------------------------------------------------------------------
-# CRUD Methods for Emergency Contacts
+
+# ------------------------------------ Emergency Contact -------------------------------------------------
 
 # Method to view employee emergency contacts
 def view_emergency_contacts(request):
@@ -262,9 +309,7 @@ def delete_emergency_contact(request, contact_id):
     return redirect('employee-emergencycontact')
 
 
-# -------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Method to log a leave
+# ------------------------------------ Logging Leave -------------------------------------------------
 
 def log_leave(request):
     if request.method == 'POST':
@@ -305,8 +350,10 @@ def view_employee_leaves(request):
 
 
 # -------------------------------------------------------------------------------------------------------------------------------------------------
-# HR Update method for modifying an employee's PayGrade, Supervisor, JobTitle
 
+# ------------------------------------ Employee table update through HR dashboard -------------------------------------------------
+
+# HR Update method for modifying an employee's PayGrade, Supervisor, JobTitle
 def update_employeeHR(request):
     if request.method == 'POST':
         employee_id = request.POST.get('employee_id')
@@ -353,32 +400,88 @@ def update_employeeHR(request):
     return redirect('hr-home')
 
 
-# method to view the audit logs:
-def admin_home(request):
-    if 'user_id' not in request.session:
-        return redirect('login')
-    query = "SELECT * FROM AuditLog ORDER BY Timestamp DESC"  # You can add filtering or sorting as needed
-    auditlogs = execute_query(query)  # Assuming `execute_query` returns a list of rows
 
-    return render(request, 'admin-home.html', {'auditlogs': auditlogs})
+
 
 
 # -------------------------------------------------------------------------------------------------------------------------------------------------
 # Methods for CRUD Functionality for the Admin view.
 
+# ------------------------------------ Employee -------------------------------------------------
 
-# Method to show the list of employees in the database currently when we click the modify employee button.
 def employee_list(request):
-    # Query to fetch all employees with their usernames
+    # Retrieve the logged-in employee's ID from the session
+    logged_in_emp_id = request.session.get('emp_id')
+
+    # Query to fetch all employees excluding the logged-in employee
     employee_query = """SELECT e.EmployeeID, e.EmployeeName, e.DepartmentID, e.JobTitleID, e.PayGradeID, ua.Username
     FROM Employee e
-    LEFT JOIN UserAccount ua ON e.EmployeeID = ua.EmployeeID"""
-    employees = execute_query(employee_query)
+    LEFT JOIN UserAccount ua ON e.EmployeeID = ua.EmployeeID
+    WHERE e.EmployeeID != %s"""
+    employees = execute_query(employee_query, [logged_in_emp_id])
 
     context = {
         'employees': employees
     }
     return render(request, 'employee_list.html', context)
+
+
+# method to add a new employee
+def add_employee(request):
+    # Fetch data for dropdowns
+    departments = execute_query(
+        "SELECT DepartmentID, CONCAT(DepartmentID, ': ', DepartmentName) AS DepartmentLabel FROM Department")
+    job_titles = execute_query(
+        "SELECT JobTitleID, CONCAT(JobTitleID, ': ', JobTitleName) AS JobTitleLabel FROM JobTitle")
+    pay_grades = execute_query(
+        "SELECT PayGradeID, CONCAT(PayGradeID, ': ', PayGradeName) AS PayGradeLabel FROM PayGrade")
+    organizations = execute_query(
+        "SELECT OrganizationID, CONCAT(OrganizationID, ': ', Name) AS OrganizationLabel FROM Organization")
+    supervisors = execute_query("""SELECT NULL AS EmployeeID, 'None' AS EmployeeLabel
+                                   UNION ALL
+                                   SELECT EmployeeID, CONCAT(EmployeeID, ': ', EmployeeName) AS EmployeeLabel FROM Employee""")
+
+    if request.method == 'POST':
+        employee_name = request.POST.get('employee_name')
+        date_of_birth = request.POST.get('dateofbirth')
+        gender = request.POST.get('gender')
+        marital_status = request.POST.get('Maritalstatus')
+        address = request.POST.get('address')
+        country = request.POST.get('country')
+        organizationid = request.POST.get('Organizationid')
+        department = request.POST.get('Departmentid')
+        job_title = request.POST.get('Jobtitleid')
+        paygrade = request.POST.get('Paygradeid')
+        supervisor = request.POST.get('Supervisorid')
+        number_of_leaves = request.POST.get('number_of_leaves')  # Default to 20 if not provided
+
+        # Handle "None" supervisor
+        if not supervisor:  # Convert empty string to None for SQL NULL
+            supervisor = None
+
+        if not number_of_leaves:
+            number_of_leaves = 20
+
+        out_param = OutParam()  # Ensure OutParam is properly defined elsewhere
+        try:
+            print("Going to call procedure")
+            call_procedure('insert_employee',
+                           [employee_name, date_of_birth, gender, marital_status, address, country,
+                            organizationid, department, job_title, paygrade, supervisor, number_of_leaves, out_param])
+            print("Called procedure")
+            messages.success(request, 'Employee added successfully.')
+        except Exception as e:
+            print("Could not call procedure")
+            messages.error(request, f"Error adding employee: {str(e)}")
+        return redirect('employee_list')
+
+    return render(request, 'add_employee.html', {
+        'organizations': organizations,
+        'departments': departments,
+        'job_titles': job_titles,
+        'pay_grades': pay_grades,
+        'supervisors': supervisors,
+    })
 
 
 
@@ -464,63 +567,10 @@ def delete_employee(request, employee_id):
     return redirect('employee_list')
 
 
-# method to add a new employee
-def add_employee(request):
-    # Fetch data for dropdowns
-    departments = execute_query(
-        "SELECT DepartmentID, CONCAT(DepartmentID, ': ', DepartmentName) AS DepartmentLabel FROM Department")
-    job_titles = execute_query(
-        "SELECT JobTitleID, CONCAT(JobTitleID, ': ', JobTitleName) AS JobTitleLabel FROM JobTitle")
-    pay_grades = execute_query(
-        "SELECT PayGradeID, CONCAT(PayGradeID, ': ', PayGradeName) AS PayGradeLabel FROM PayGrade")
-    organizations = execute_query(
-        "SELECT OrganizationID, CONCAT(OrganizationID, ': ', Name) AS OrganizationLabel FROM Organization")
-    supervisors = execute_query("""SELECT NULL AS EmployeeID, 'None' AS EmployeeLabel
-                                   UNION ALL
-                                   SELECT EmployeeID, CONCAT(EmployeeID, ': ', EmployeeName) AS EmployeeLabel FROM Employee""")
 
-    if request.method == 'POST':
-        employee_name = request.POST.get('employee_name')
-        date_of_birth = request.POST.get('dateofbirth')
-        gender = request.POST.get('gender')
-        marital_status = request.POST.get('Maritalstatus')
-        address = request.POST.get('address')
-        country = request.POST.get('country')
-        organizationid = request.POST.get('Organizationid')
-        department = request.POST.get('Departmentid')
-        job_title = request.POST.get('Jobtitleid')
-        paygrade = request.POST.get('Paygradeid')
-        supervisor = request.POST.get('Supervisorid')
-        number_of_leaves = request.POST.get('number_of_leaves')  # Default to 20 if not provided
 
-        # Handle "None" supervisor
-        if not supervisor:  # Convert empty string to None for SQL NULL
-            supervisor = None
 
-        if not number_of_leaves:
-            number_of_leaves = 20
-
-        out_param = OutParam()  # Ensure OutParam is properly defined elsewhere
-        try:
-            print("Going to call procedure")
-            call_procedure('insert_employee',
-                           [employee_name, date_of_birth, gender, marital_status, address, country,
-                            organizationid, department, job_title, paygrade, supervisor, number_of_leaves, out_param])
-            print("Called procedure")
-            messages.success(request, 'Employee added successfully.')
-        except Exception as e:
-            print("Could not call procedure")
-            messages.error(request, f"Error adding employee: {str(e)}")
-        return redirect('employee_list')
-
-    return render(request, 'add_employee.html', {
-        'organizations': organizations,
-        'departments': departments,
-        'job_titles': job_titles,
-        'pay_grades': pay_grades,
-        'supervisors': supervisors,
-    })
-
+# ------------------------------------ Job Title ----------------------------------------------------
 
 def job_title_list(request):
     # Query to fetch all job titles
@@ -567,6 +617,8 @@ def delete_job_title(request, job_title_id):
             messages.error(request, f'Error deleting job title: {str(e)}')
     return redirect('job_title_list')
 
+
+# ------------------------------------ Organization -------------------------------------------------
 
 def organization_list(request):
     organization_query = "SELECT * FROM Organization"
@@ -616,7 +668,7 @@ def delete_organization(request, organization_id):
     return redirect('organization_list')
 
 
-# ----------------------------Department--------------------------------------
+# ----------------------------Department-----------------------------------------------------------------
 
 # method to view department list
 def department_list(request):
@@ -674,7 +726,7 @@ def delete_department(request, department_id):
     return redirect('department_list')
 
 
-# -------------------------PayGrade-----------------------------------------
+# -------------------------PayGrade---------------------------------------------------------------------
 
 def paygrade_list(request):
     paygrade_query = "SELECT * FROM Paygrade"
@@ -728,10 +780,14 @@ def delete_paygrade(request, paygrade_id):
 
     return redirect('paygrade_list')
 
-# -------------------------UserAccount-----------------------------------------
+
+
+
+
+# ----------------------------------UserAccount Operations ------------------------------------------------------
 
 def user_account_list(request):
-    user_account_query = "SELECT * FROM UserAccount"
+    user_account_query = "SELECT * FROM UserAccount WHERE EmployeeID != 7"
     useraccounts = execute_query(user_account_query)
     context = {'useraccounts': useraccounts}
     return render(request, 'user_account_list.html', context)
@@ -805,7 +861,8 @@ def delete_user_account(request, useraccount_id):
 
     return redirect('user_account_list')
 
-# -------------------------Logout-----------------------------------------
+
+# -----------------------------------------Logout------------------------------------------------------------------------
 
 def logout_view(request):
     logout(request)
