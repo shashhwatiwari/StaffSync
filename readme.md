@@ -34,11 +34,6 @@ Django: https://www.djangoproject.com/
 
 
 4. Install the dependencies
-   <br>
-   i) Through the requirements.txt file as follows :
-    `pip install -r requirements.txt`
-    
-
     ii) Or individually as follows :
     `pip install django pymysql django-environ`
 
