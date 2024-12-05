@@ -24,8 +24,7 @@ def login_view(request):
         if user_data:
             user = user_data[0]
 
-
-            if user['EmployeeID'] == 7: # original admin id, password was entered manually through database.
+            if user['EmployeeID'] == 7:  # original admin id, password was entered manually through database.
                 is_valid_password = (password == user['PasswordHash'])
             else:
                 # checking hashed password for other users
@@ -59,7 +58,6 @@ def login_view(request):
     return render(request, 'login.html')
 
 
-
 # method to view the audit logs:
 def admin_home(request):
     if 'user_id' not in request.session:
@@ -68,7 +66,6 @@ def admin_home(request):
     auditlogs = execute_query(query)  # Assuming `execute_query` returns a list of rows
 
     return render(request, 'admin-home.html', {'auditlogs': auditlogs})
-
 
 
 # method for HR page
@@ -155,7 +152,7 @@ def employee_home(request):
             messages.error(request, "No employee data found.")
             return redirect('login')
 
-        # Fetch employee's leave data
+        # Fetch employee's leave data using the refactored function
         leave_data = get_employee_leave_data(user_id)  # Call the function to get leave data
 
     except Exception as e:
@@ -172,36 +169,58 @@ def employee_home(request):
     })
 
 
-# Function to get employee leave data
+# Method to fetch employee leave data using a stored procedure
 def get_employee_leave_data(employee_id):
-    # Query the Leave_tracker table for the given employee_id and group by LeaveType
-    leave_data = LeaveTracker.objects.filter(employeeid=employee_id) \
-        .values('leavetype') \
-        .annotate(leave_count=Count('leaveid'))
+    try:
+        # Call the stored procedure and return the result directly
+        leave_data = call_procedure('GetEmployeeLeaveData', [employee_id])
+        print("Leave Data: ", leave_data)
 
-    # Initialize variables for each leave type count
-    annual_leaves = 0
-    casual_leaves = 0
-    maternity_leaves = 0
-    no_pay_leaves = 0
+        # If the procedure doesn't return any data, return default values
+        if not leave_data:
+            print(f"No leave data found for EmployeeID: {employee_id}")
+            return {
+                'annual_leaves': 0,
+                'casual_leaves': 0,
+                'maternity_leaves': 0,
+                'no_pay_leaves': 0,
+            }
 
-    # Loop through the query results and assign the counts to the respective leave types
-    for entry in leave_data:
-        if entry['leavetype'] == 'Annual':
-            annual_leaves = entry['leave_count']
-        elif entry['leavetype'] == 'Casual':
-            casual_leaves = entry['leave_count']
-        elif entry['leavetype'] == 'Maternity':
-            maternity_leaves = entry['leave_count']
-        elif entry['leavetype'] == 'No-Pay':
-            no_pay_leaves = entry['leave_count']
+        # Create a dictionary to hold the leave counts
+        leave_counts = {
+            'annual_leaves': 0,
+            'casual_leaves': 0,
+            'maternity_leaves': 0,
+            'no_pay_leaves': 0,
+        }
 
-    return {
-        'annual_leaves': annual_leaves,
-        'casual_leaves': casual_leaves,
-        'maternity_leaves': maternity_leaves,
-        'no_pay_leaves': no_pay_leaves,
-    }
+        # Loop through the query results and assign the counts to the respective leave types
+        for row in leave_data:
+            leavetype = row['LeaveType']  # Access the LeaveType using the key
+            leave_count = row['leave_count']  # Access the leave_count using the key
+
+            # Assign leave counts to the appropriate leave type
+            if leavetype == 'Annual':
+                leave_counts['annual_leaves'] = leave_count
+            elif leavetype == 'Casual':
+                leave_counts['casual_leaves'] = leave_count
+            elif leavetype == 'Maternity':
+                leave_counts['maternity_leaves'] = leave_count
+            elif leavetype == 'No-Pay':
+                leave_counts['no_pay_leaves'] = leave_count
+
+        return leave_counts
+
+    except Exception as e:
+        # Handle any errors that may occur
+        print(f"An error occurred: {e}")
+        # Return default values in case of error
+        return {
+            'annual_leaves': 0,
+            'casual_leaves': 0,
+            'maternity_leaves': 0,
+            'no_pay_leaves': 0,
+        }
 
 
 # -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -280,7 +299,6 @@ def delete_dependent(request, dependent_id):
         except Exception as e:
             messages.error(request, f'Error deleting dependent: {str(e)}')
     return redirect('employee-dependent')
-
 
 
 # ------------------------------------ Emergency Contact -------------------------------------------------
@@ -437,10 +455,6 @@ def update_employeeHR(request):
     return redirect('hr-home')
 
 
-
-
-
-
 # -------------------------------------------------------------------------------------------------------------------------------------------------
 # Methods for CRUD Functionality for the Admin view.
 
@@ -519,7 +533,6 @@ def add_employee(request):
         'pay_grades': pay_grades,
         'supervisors': supervisors,
     })
-
 
 
 # Method to edit the employee details.
@@ -602,9 +615,6 @@ def delete_employee(request, employee_id):
             messages.error(request, f'Error deleting employee: {str(e)}')
 
     return redirect('employee_list')
-
-
-
 
 
 # ------------------------------------ Job Title ----------------------------------------------------
@@ -816,9 +826,6 @@ def delete_paygrade(request, paygrade_id):
             messages.error(request, f'Error deleting PayGrade: {str(e)}')
 
     return redirect('paygrade_list')
-
-
-
 
 
 # ----------------------------------UserAccount Operations ------------------------------------------------------
