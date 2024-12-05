@@ -91,16 +91,20 @@ Start the development server:
 Simply go to the browser and copy the presented link in your terminal and the web-app should be functional.
 
 Dummy data given in the database will let you login to each of the dashboards through the following credentials:
-admin dashboard:- 
+
+admin dashboard:- <br>
                     username - admin
+                    <br>
                     password - admin
 
-HR dashboard:- 
+HR dashboard:- <br>
                     username - sarahJ
+                    <br>
                     password - hrpassword
 
-Regular employee dashboard:- 
+Regular employee dashboard:- <br>
                     username - carlosM
+                    <br>
                     password - regularpassword
 
 
