@@ -57,11 +57,11 @@ Django: https://www.djangoproject.com/
     'DB_PASSWORD' section with your respective user and password in the provided  
 
 
-       DATABASE_NAME= StaffSync
-       DATABASE_USER= "your_database_user"
-       DATABASE_PASSWORD= "your_database_password"
-       DATABASE_HOST=localhost
-       DATABASE_PORT=3306
+       DB_NAME=staffsync
+       DB_USER="your_database_user"
+       DB_PASSWORD="your_database_password"
+       DB_HOST=localhost
+       DB_PORT=3306
 
     
 7. Run migrations: 
