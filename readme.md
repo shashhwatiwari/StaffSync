@@ -27,7 +27,8 @@ Django: https://www.djangoproject.com/
 2. Clone or Extract Project Files: Extract the project files into a directory on your computer.
 
 3. Creating a virtual environment _(optional)_ : 
-`python3 -m venv venv source venv/bin/activate`
+`python3 -m venv venv` 
+`source venv/bin/activate`
 
      For Windows : 
     `venv\Scripts\activate`
@@ -35,7 +36,7 @@ Django: https://www.djangoproject.com/
 
 4. Install the dependencies
     ii) Or individually as follows :
-    `pip install django pymysql django-environ`
+    `pip install django pymysql django-environ cryptography`
 
 
 
@@ -88,6 +89,20 @@ Start the development server:
     Starting development server at http://127.0.0.1:8000/
 
 Simply go to the browser and copy the presented link in your terminal and the web-app should be functional.
+
+Dummy data given in the database will let you login to each of the dashboards through the following credentials:
+admin dashboard:- 
+                    username - admin
+                    password - admin
+
+HR dashboard:- 
+                    username - sarahJ
+                    password - hrpassword
+
+Regular employee dashboard:- 
+                    username - carlosM
+                    password - regularpassword
+
 
 
 
