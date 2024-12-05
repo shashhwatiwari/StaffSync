@@ -1,10 +1,12 @@
 from django.contrib.auth import logout
 from django.contrib.auth.hashers import make_password
+from django.db.models import Count
 from django.shortcuts import render, redirect
 from .db_utils import execute_query, call_procedure, OutParam
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password
 
+from .models import LeaveTracker
 
 
 # login method
@@ -139,7 +141,7 @@ def get_employee_distribution_by_pay_grade(organization_id):
 
 # Method for Regular Employees
 def employee_home(request):
-    if 'user_id' not in request.session:
+    if 'emp_id' not in request.session:
         return redirect('login')
 
     user_id = request.session['emp_id']
@@ -152,19 +154,54 @@ def employee_home(request):
         else:
             messages.error(request, "No employee data found.")
             return redirect('login')
+
+        # Fetch employee's leave data
+        leave_data = get_employee_leave_data(user_id)  # Call the function to get leave data
+
     except Exception as e:
         messages.error(request, f"Error fetching employee data: {str(e)}")
         return redirect('login')
 
-    return render(request, 'employee-home.html', {'employee': employee})
+    # Pass employee and leave data to the template
+    return render(request, 'employee-home.html', {
+        'employee': employee,
+        'annual_leaves': leave_data['annual_leaves'],
+        'casual_leaves': leave_data['casual_leaves'],
+        'maternity_leaves': leave_data['maternity_leaves'],
+        'no_pay_leaves': leave_data['no_pay_leaves'],
+    })
 
-    return render(request, 'employee-home.html',
-                  {'employee': employee_data[0] if employee_data else None})
 
+# Function to get employee leave data
+def get_employee_leave_data(employee_id):
+    # Query the Leave_tracker table for the given employee_id and group by LeaveType
+    leave_data = LeaveTracker.objects.filter(employeeid=employee_id) \
+        .values('leavetype') \
+        .annotate(leave_count=Count('leaveid'))
 
+    # Initialize variables for each leave type count
+    annual_leaves = 0
+    casual_leaves = 0
+    maternity_leaves = 0
+    no_pay_leaves = 0
 
+    # Loop through the query results and assign the counts to the respective leave types
+    for entry in leave_data:
+        if entry['leavetype'] == 'Annual':
+            annual_leaves = entry['leave_count']
+        elif entry['leavetype'] == 'Casual':
+            casual_leaves = entry['leave_count']
+        elif entry['leavetype'] == 'Maternity':
+            maternity_leaves = entry['leave_count']
+        elif entry['leavetype'] == 'No-Pay':
+            no_pay_leaves = entry['leave_count']
 
-
+    return {
+        'annual_leaves': annual_leaves,
+        'casual_leaves': casual_leaves,
+        'maternity_leaves': maternity_leaves,
+        'no_pay_leaves': no_pay_leaves,
+    }
 
 
 # -------------------------------------------------------------------------------------------------------------------------------------------------

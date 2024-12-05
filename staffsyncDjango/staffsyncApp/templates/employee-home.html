@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Home - StaffSync</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -104,65 +105,119 @@
     </style>
 </head>
 <body>
-    <!-- Header Section -->
-    <div class="header">
-        <h1>StaffSync</h1>
-        <button onclick="window.location.href='/logout'">Logout</button>
+<!-- Header Section -->
+<div class="header">
+    <h1>StaffSync</h1>
+    <button onclick="window.location.href='/logout'">Logout</button>
+</div>
+
+<h1>Welcome, {{ employee.EmployeeName }}</h1>
+<div class="grid-container">
+    <!-- Personal Details -->
+    <div class="info-container">
+        <h2>Personal Details</h2>
+        <p><span>Address:</span> {{ employee.Address }}</p>
+        <p><span>Country:</span> {{ employee.Country }}</p>
+        <p><span>Date of Birth:</span> {{ employee.DateOfBirth }}</p>
+        <p><span>Gender:</span> {{ employee.Gender }}</p>
+        <p><span>Marital Status:</span> {{ employee.MaritalStatus }}</p>
     </div>
 
-    <h1>Welcome, {{ employee.EmployeeName }}</h1>
-    <div class="grid-container">
-        <!-- Personal Details -->
-        <div class="info-container">
-            <h2>Personal Details</h2>
-            <p><span>Address:</span> {{ employee.Address }}</p>
-            <p><span>Country:</span> {{ employee.Country }}</p>
-            <p><span>Date of Birth:</span> {{ employee.DateOfBirth }}</p>
-            <p><span>Gender:</span> {{ employee.Gender }}</p>
-            <p><span>Marital Status:</span> {{ employee.MaritalStatus }}</p>
-        </div>
+    <!-- Job Information -->
+    <div class="info-container">
+        <h2>Job Information</h2>
+        <p><span>Job Title:</span> {{ employee.JobTitleName }}</p>
+        <p><span>Department:</span> {{ employee.DepartmentName }}</p>
+        <p><span>Pay Grade:</span> {{ employee.PayGradeName }}</p>
+    </div>
 
-        <!-- Job Information -->
-        <div class="info-container">
-            <h2>Job Information</h2>
-            <p><span>Job Title:</span> {{ employee.JobTitleName }}</p>
-            <p><span>Department:</span> {{ employee.DepartmentName }}</p>
-            <p><span>Pay Grade:</span> {{ employee.PayGradeName }}</p>
-        </div>
+    <!-- Organization Details -->
+    <div class="info-container">
+        <h2>Organization Details</h2>
+        <p><span>Organization Name:</span> {{ employee.OrganizationName }}</p>
+        <p><span>Supervisor:</span> {{ employee.SupervisorName }}</p>
+    </div>
 
-        <!-- Organization Details -->
-        <div class="info-container">
-            <h2>Organization Details</h2>
-            <p><span>Organization Name:</span> {{ employee.OrganizationName }}</p>
-            <p><span>Supervisor:</span> {{ employee.SupervisorName }}</p>
+    <!-- Leave Information -->
+    <div class="info-container">
+        <h2>Leave Information</h2>
+        <p><span>Annual Leave Count:</span> {{ employee.NumberOfLeaves }}</p>
+        <p><span>Total Leaves Used:</span> {{ employee.TotalLeavesUsed }}</p>
+        <p><span>Total Leaves Left:</span> {{ employee.LeavesLeft }}</p>
+        <div class="btn-container">
+            <button onclick="window.location.href='/apply-for-leave'">Log Leaves</button>
         </div>
-
-        <!-- Leave Information -->
-        <div class="info-container">
-            <h2>Leave Information</h2>
-            <p><span>Annual Leave Count:</span> {{ employee.NumberOfLeaves }}</p>
-            <p><span>Total Leaves Used:</span> {{ employee.TotalLeavesUsed }}</p>
-            <p><span>Total Leaves Left:</span> {{ employee.LeavesLeft }}</p>
-            <div class="btn-container">
-                <button onclick="window.location.href='/apply-for-leave'">Log Leaves</button>
-            </div>
-            <div class="btn-container">
-                <button onclick="window.location.href='/view-leave'">View Leaves</button>
-            </div>
-        </div>
-
-        <!-- Statistics -->
-        <div class="info-container">
-            <h2>Statistics</h2>
-            <p><span>Dependents:</span> {{ employee.DependentCount }}</p>
-            <div class="btn-container">
-                <button onclick="window.location.href='/dependents'">View/Update Dependents</button>
-            </div>
-            <p><span>Emergency Contacts:</span> {{ employee.EmergencyContactCount }}</p>
-            <div class="btn-container">
-                <button onclick="window.location.href='/emergencycontact'">View/Update Emergency Contacts</button>
-            </div>
+        <div class="btn-container">
+            <button onclick="window.location.href='/view-leave'">View Leaves</button>
         </div>
     </div>
+
+    <!-- Statistics -->
+    <div class="info-container">
+        <h2>Statistics</h2>
+        <p><span>Dependents:</span> {{ employee.DependentCount }}</p>
+        <div class="btn-container">
+            <button onclick="window.location.href='/dependents'">View/Update Dependents</button>
+        </div>
+        <p><span>Emergency Contacts:</span> {{ employee.EmergencyContactCount }}</p>
+        <div class="btn-container">
+            <button onclick="window.location.href='/emergencycontact'">View/Update Emergency Contacts</button>
+        </div>
+    </div>
+    <!--Chart Section-->
+    <div class="info-container">
+        <h2>Leave Statistics</h2>
+        <canvas id="leaveChart" width="400" height="200"></canvas>
+    </div>
+</div>
+
+<script>
+    // Data passed from the Django backend
+    const annualLeaves = {{ annual_leaves }};
+    const casualLeaves = {{ casual_leaves }};
+    const maternityLeaves = {{ maternity_leaves }};
+    const noPayLeaves = {{ no_pay_leaves }};
+
+    const ctx = document.getElementById('leaveChart').getContext('2d');
+    const leaveChart = new Chart(ctx, {
+        type: 'bar',  // Change this to 'pie' for a pie chart
+        data: {
+            labels: ['Annual', 'Casual', 'Maternity', 'No Pay'], // This will be displayed on the X-axis
+            datasets: [{
+                // Remove the 'label' field if it's causing 'undefined'
+                data: [annualLeaves, casualLeaves, maternityLeaves, noPayLeaves],
+                backgroundColor: ['#4CAF50', '#FF9800', '#2196F3', '#F44336'],
+                borderColor: ['#4CAF50', '#FF9800', '#2196F3', '#F44336'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false,// Ensure the legend is displayed
+                    position: 'top'  // You can position it 'left', 'right', 'top', 'bottom'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                },
+                x: {
+                    ticks: {
+                        padding: 10
+                    },
+                    categoryPercentage: 0.5,
+                    barPercentage: 0.5,
+                    maxBarThickness: 30
+                }
+            }
+        }
+    });
+</script>
+
+
+
+
 </body>
 </html>
