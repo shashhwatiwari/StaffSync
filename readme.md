@@ -1,4 +1,4 @@
-# StaffSync - CS5200 Project
+# StaffSync
 
 An employee management system that involves CRUD operations on different tables. The database 
 contains 10 tables and procedures/triggers relevant for those tables. The application is made as a 

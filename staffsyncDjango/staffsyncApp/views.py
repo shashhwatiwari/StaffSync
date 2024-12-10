@@ -1,12 +1,11 @@
 from django.contrib.auth import logout
 from django.contrib.auth.hashers import make_password
-from django.db.models import Count
 from django.shortcuts import render, redirect
 from .db_utils import execute_query, call_procedure, OutParam
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password
 
-from .models import LeaveTracker
+
 
 
 # login method
